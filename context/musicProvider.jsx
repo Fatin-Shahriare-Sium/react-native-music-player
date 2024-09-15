@@ -16,6 +16,7 @@ const storeData = async (value) => {
 
 let MusicProvider=({children})=> {
     let [allAudioFiles,setAllAudioFiles]=useState([]);
+    let [audioQueue,setAudioQueue]=useState([])
     let getAudioFiles = async () => {
         await MediaLibrary.requestPermissionsAsync()
         let media = await MediaLibrary.getAssetsAsync({
@@ -36,15 +37,14 @@ let MusicProvider=({children})=> {
       
         AsyncStorage.getItem("AllAudioFiles").then((res)=>{
             let allAudioFilesParsed=JSON.parse(res)
-            console.log("allfiles",allAudioFilesParsed.length);
-            
+            console.log("allfiles",allAudioFilesParsed);
             setAllAudioFiles([...allAudioFilesParsed])
-            
+            setAudioQueue([...allAudioFilesParsed])
         })
       },[])
 
   return (
-   <GloblaMusicProvider.Provider value={{allAudioFiles}} >
+   <GloblaMusicProvider.Provider value={{allAudioFiles,audioQueue}} >
     <Pressable onPress={()=>getAudioFiles()}>
         <Text>Check</Text>
     </Pressable>

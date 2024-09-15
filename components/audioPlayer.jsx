@@ -12,23 +12,14 @@ import shuffleIcon from "../assets/shuffle.png"
 import loveIcon from "../assets/love.png" 
 import musicIcon from "../assets/music-pic.png" 
 
-const AudioPlayer = ({isModalShow,modalFuc,audioTitle,audioUpdateStatus,playFuc,pauseFuc,isPlaying}) => {
+const AudioPlayer = ({isModalShow,modalFuc,audioTitle,audioUpdateStatus,playFuc,pauseFuc,playNextFunc,playPreFuc,handleSeek,isPlaying}) => {
 
-    useEffect(() => {
-        BackHandler.addEventListener("hardwareBackPress", ()=>{
-            console.log("press back");
-            
-        });
-        return () => {
-          BackHandler.removeEventListener("hardwareBackPress", modalFuc);
-        };
-      }, []);
     let handleDurationFormat=(duration)=>{
         
         
             let hours=Math.floor(duration/3600)
-            let minutes=Math.floor(duration/60);
-            let seconds=Math.floor(duration%60)
+            let minutes=Math.floor(duration%3600 /60);
+            let seconds=Math.floor(duration%3600 %60)
         hours=String(hours).padStart(2,"0")
         minutes=String(minutes).padStart(2,"0")
         seconds=String(seconds).padStart(2,"0")
@@ -37,7 +28,7 @@ const AudioPlayer = ({isModalShow,modalFuc,audioTitle,audioUpdateStatus,playFuc,
     }
   return (
     <>
-        <Modal visible={isModalShow}>
+        <Modal onRequestClose={modalFuc}  visible={isModalShow} nativeID={audioTitle}>
         <LinearGradient
         // Background Linear Gradient
         colors={['#35555f',"black"]}
@@ -72,9 +63,10 @@ const AudioPlayer = ({isModalShow,modalFuc,audioTitle,audioUpdateStatus,playFuc,
                         <Slider
                             minimumValue={0}
                             maximumValue={1}
-                            minimumTrackTintColor="blue"
+                            onValueChange={(e)=>handleSeek(e)}
+                            minimumTrackTintColor="#35555f"
                             maximumTrackTintColor="#c1beb9"
-                            value={audioUpdateStatus.currentDuration/audioUpdateStatus.totalDuration}
+                            value={audioUpdateStatus.currentDuration==0?0:audioUpdateStatus.currentDuration/audioUpdateStatus.totalDuration}
                         />
                         <View style={{display:"flex",justifyContent:"space-between",alignItems:"center",flexDirection:"row"}}>
                             <Text style={{color:"white"}}>{handleDurationFormat(audioUpdateStatus.currentDuration)}</Text>
@@ -90,7 +82,7 @@ const AudioPlayer = ({isModalShow,modalFuc,audioTitle,audioUpdateStatus,playFuc,
                             </View>
                            
                         </Pressable>
-                        <Pressable>
+                        <Pressable onPress={playPreFuc}>
                             <Image source={previousIcon} />
                         </Pressable>
                         <Pressable onPress={isPlaying?pauseFuc:playFuc}>
@@ -98,7 +90,7 @@ const AudioPlayer = ({isModalShow,modalFuc,audioTitle,audioUpdateStatus,playFuc,
                                 <Image source={isPlaying?pauseIcon:playIcon}/>
                             </View>
                         </Pressable>
-                        <Pressable>
+                        <Pressable onPress={playNextFunc}>
                             <Image source={nextIcon}/>
                         </Pressable>
                         <Pressable>

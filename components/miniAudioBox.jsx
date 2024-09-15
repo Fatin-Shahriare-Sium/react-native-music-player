@@ -9,15 +9,46 @@ import loveRedIcon from "../assets/love-red.png"
 import * as Progress from 'react-native-progress';
 import { Audio } from 'expo-av';
 import AudioPlayer from './audioPlayer'
-const MiniAudioBox = ({audioUri,audioTitle,audioId}) => {
+import { useMusicProvider } from '../context/musicProvider'
+const MiniAudioBox = ({audioUri,audioTitle,audioId,audioIndex}) => {
     let [audioCurrentStatus,setAudioCurrentStatus]=useState({currentDuration:0,totalDuration:0})
+    let {audioQueue}=useMusicProvider()
     let [isFav,setIsFav]=useState(false)
     let [isplaying,setIsPlaying]=useState(false)
     let intervalRef=useRef(null)
     let [showModal,setShowModal]=useState(false)
     const soundx =useRef(new Audio.Sound());
-
+    let [currentAudioQueue,setCurrentAudioQueue]=useState([...audioQueue])
+    let [currentAudioObj,setCurrentAudioObj]=useState({index:audioIndex,uri:audioUri,filename:audioTitle,audioId:audioId})
+       
+     //hanlde audioplayer modal
+     let handleModal=()=>{
+      return setShowModal(!showModal)
+    }
+ //PLAY next Audio
+        let playNext=async()=>{
+        
+          setIsPlaying(false)
+          let changeCurrentAudioObj=currentAudioQueue[currentAudioObj.index+1]
+          console.log("currentAudioQueue[audioIndex+1].uri",changeCurrentAudioObj);
+          setCurrentAudioObj({index:currentAudioObj.index+1,uri:changeCurrentAudioObj.uri,filename:changeCurrentAudioObj.filename,audioId:changeCurrentAudioObj.id})
+         
+          if(soundx.current._loaded==true){
+            await soundx.current.pauseAsync()
+            await soundx.current.unloadAsync();
+            await soundx.current.loadAsync({uri:changeCurrentAudioObj.uri},{shouldPlay:true,isLooping:false})
+            setAudioCurrentStatus({currentDuration:0,totalDuration:0})
+          }else{
+            await soundx.current.loadAsync({uri: changeCurrentAudioObj.uri},{shouldPlay:true,isLooping:false})
+          }
+          setIsPlaying(true)
+       
+          
+        
+        }
+    
     useEffect(()=>{
+      //getting current duration fo music
         
           if(isplaying==true){
                 intervalRef.current=setInterval(()=>{
@@ -26,16 +57,15 @@ const MiniAudioBox = ({audioUri,audioTitle,audioId}) => {
                 
                     if(res.isPlaying==false){
                         console.log("set audio url",res);
-                        setAudioCurrentStatus({currentDuration:0,totalDuration:0})
+                       
                         return ()=>{clearInterval(intervalRef.current)}
                     }else{
-                      
-                        
+                 
                         setAudioCurrentStatus({currentDuration:res.positionMillis/1000,totalDuration:res.durationMillis/1000})
                     }
             
             })
-        },1000 )
+        },100 )
           }
        
         return ()=>{clearInterval(intervalRef.current)}
@@ -45,10 +75,19 @@ const MiniAudioBox = ({audioUri,audioTitle,audioId}) => {
         Audio.setAudioModeAsync({
             staysActiveInBackground: true,
           });
-        handleAudioSelect(audioId,audioUri,audioTitle)
+        handleAudioSelect(audioId,audioUri,audioTitle,audioIndex)
     },[audioId])
+    useEffect(()=>{
+      console.log("currentAudioObj",currentAudioObj);
+      
+    },[currentAudioObj])
 
+    //handle seek audio in slider
+     let syncWithAudio=async (syncPosition)=>{
+        await soundx.current.setPositionAsync(audioCurrentStatus.totalDuration*syncPosition*1000)
+     }
 
+        //play Auido
       async function playSound() {
 
         await Audio.requestPermissionsAsync()
@@ -57,34 +96,52 @@ const MiniAudioBox = ({audioUri,audioTitle,audioId}) => {
         
        
       }
-    
+    //pause audio
       async function pauseSound() {
         setIsPlaying(false)
        await soundx.current.pauseAsync()
     
       }
-
-      let handleModal=()=>{
-        return setShowModal(!showModal)
+    //play Audio Prevoius
+    let playPrevious=async()=>{
+        
+      setIsPlaying(false)
+      let changeCurrentAudioObj=currentAudioQueue[currentAudioObj.index-1]
+      console.log("currentAudioQueue[audioIndex+1].uri",changeCurrentAudioObj);
+      setCurrentAudioObj({index:currentAudioObj.index-1,uri:changeCurrentAudioObj.uri,filename:changeCurrentAudioObj.filename,audioId:changeCurrentAudioObj.id})
+     
+      if(soundx.current._loaded==true){
+        await soundx.current.pauseAsync()
+        await soundx.current.unloadAsync();
+        await soundx.current.loadAsync({uri:changeCurrentAudioObj.uri},{shouldPlay:true,isLooping:false})
+        setAudioCurrentStatus({currentDuration:0,totalDuration:0})
+      }else{
+        await soundx.current.loadAsync({uri: changeCurrentAudioObj.uri},{shouldPlay:true,isLooping:false})
       }
+      setIsPlaying(true)
+   
+      
+    
+    }
 
     
-
-        let handleAudioSelect=async (audioId,audioUri,audioTitle)=>{
+      //handle set audio when user click audioSingelList
+        let handleAudioSelect=async (audioId,audioUri,audioTitle,audioIndex)=>{
             console.log("setect audio uri",audioUri);
             console.log("soundx.current._loaded",soundx.current._loaded);
+            console.log("handle set audio when user click audioSingelList",audioIndex,audioUri);
+            
             setIsPlaying(false)
+            
             if(soundx.current._loaded==true){
               await soundx.current.pauseAsync()
               await soundx.current.unloadAsync()
               await soundx.current.loadAsync({uri:audioUri},{isLooping:false,shouldPlay:true});
-              setIsPlaying(true)
-        
             }else{
              await soundx.current.loadAsync({uri:audioUri},{isLooping:false,shouldPlay:true});
-              setIsPlaying(true)
-      
             }
+            setCurrentAudioObj({uri:audioUri,index:audioIndex,filename:audioTitle,audioId})
+            setIsPlaying(true)
      }
       let handleFav=async (audioFileId)=>{
         setIsFav(true)
@@ -96,9 +153,9 @@ const MiniAudioBox = ({audioUri,audioTitle,audioId}) => {
       }
   return (
     <View style={{backgroundColor:"black",height:Dimensions.get("window").height*.1,width:Dimensions.get("window").width}}>
-<AudioPlayer modalFuc={handleModal} isModalShow={showModal} playFuc={playSound} pauseFuc={pauseSound} audioUpdateStatus={audioCurrentStatus} isPlaying={isplaying} audioTitle={audioTitle}></AudioPlayer>
+ <AudioPlayer playPreFuc={playPrevious} handleSeek={syncWithAudio} modalFuc={handleModal} isModalShow={showModal} playFuc={playSound} pauseFuc={pauseSound} audioUpdateStatus={audioCurrentStatus} playNextFunc={playNext} isPlaying={isplaying} audioTitle={currentAudioObj.filename}></AudioPlayer>
         <View>
-        <Progress.Bar progress={audioCurrentStatus.totalDuration==0?0:audioCurrentStatus.currentDuration/audioCurrentStatus.totalDuration}  color={"black"} unfilledColor={"white"} width={Dimensions.get("window").width} height={1} />
+       {audioCurrentStatus.currentDuration>0 &&  <Progress.Bar progress={audioCurrentStatus.currentDuration/audioCurrentStatus.totalDuration}  color={"black"} unfilledColor={"white"} width={Dimensions.get("window").width} height={1} />}
         </View>
        
 
@@ -116,7 +173,7 @@ const MiniAudioBox = ({audioUri,audioTitle,audioId}) => {
                 onPress={handleModal}
                 repeatSpacer={0}
                 marqueeDelay={1000}>
-                 {audioTitle}
+                 {currentAudioObj.filename}
                  </TextTicker>
 
             </View>

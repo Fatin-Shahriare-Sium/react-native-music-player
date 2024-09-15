@@ -10,13 +10,13 @@ import { useMusicProvider } from '../context/musicProvider';
 
 export default function App() {
   let {allAudioFiles}=useMusicProvider();
-  let [currentAudioFile,setCurrentAudioFile]=useState({title:"",id:"",uri:""});
-    // let syncWithAudio=async (syncPosition)=>{
-    //     await soundx.current.setPositionAsync(audioCurrentStatus.totalDuration*syncPosition*1000)
-    //   }
+  let [currentAudioFile,setCurrentAudioFile]=useState({title:"",id:"",uri:"",index:""});
+   
 
-    let handleAudioSelect=(audioId,audioUri,audioTitle)=>{
-      setCurrentAudioFile({title:audioTitle,uri:audioUri,id:audioId})
+    let handleAudioSelect=(audioId,audioUri,audioTitle,index)=>{
+      console.log("handleAudioIndex in indexjs",index);
+      
+      setCurrentAudioFile({title:audioTitle,uri:audioUri,id:audioId,index})
     }
 
   return (
@@ -29,12 +29,12 @@ export default function App() {
   
       <StatusBar style="auto" />
 
-      {currentAudioFile.title && <MiniAudioBox audioUri={currentAudioFile.uri} audioTitle={currentAudioFile.title} audioId={currentAudioFile.id} ></MiniAudioBox>}
+      {currentAudioFile.title && <MiniAudioBox audioUri={currentAudioFile.uri} audioTitle={currentAudioFile.title} audioId={currentAudioFile.id} audioIndex={currentAudioFile.index} ></MiniAudioBox>}
       <FlatList
-        data={allAudioFiles}
+        data={allAudioFiles.slice(0,30)}
         key={(item)=>item.id}
         keyExtractor={(item) => item.id}
-      renderItem={(sig)=>{return (<AudioSingleList audioTitle={sig.item.filename} audioId={sig.item.id} audioUri={sig.item.uri} handleTitleSelect={handleAudioSelect}></AudioSingleList>)}}
+      renderItem={(sig)=>{return (<AudioSingleList key={sig.index} audioTitle={sig.item.filename} indexOfAudioFiles={sig.index} audioId={sig.item.id} audioUri={sig.item.uri} handleTitleSelect={handleAudioSelect}></AudioSingleList>)}}
     maxToRenderPerBatch={5}
       />
     </View>

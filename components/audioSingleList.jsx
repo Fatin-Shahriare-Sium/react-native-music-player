@@ -1,8 +1,14 @@
 import { StyleSheet, Text, View,Image, Pressable } from 'react-native'
-import React from 'react'
+import React, { useEffect } from 'react'
 import musicLogo from "../assets/music.png"
 import threeDotsIcon from "../assets/threeDots.png"
-const AudioSingleList = ({audioTitle,audioUri,audioId,handleTitleSelect}) => {
+const AudioSingleList = ({audioTitle,audioUri,audioId,handleTitleSelect,indexOfAudioFiles}) => {
+  useEffect(()=>{
+console.log("indexOfAudioFiles",indexOfAudioFiles
+
+);
+
+  },[])
   return (
     <View style={styles.audioSingleListWrapper}>
        
@@ -10,7 +16,7 @@ const AudioSingleList = ({audioTitle,audioUri,audioId,handleTitleSelect}) => {
                 <Image source={musicLogo}/>
             </View>
             <View style={{width:"70%",marginLeft:"3%"}} >
-               <Pressable onPress={()=>handleTitleSelect(audioId,audioUri,audioTitle)}>
+               <Pressable onPress={()=>handleTitleSelect(audioId,audioUri,audioTitle,indexOfAudioFiles)}>
                <Text  numberOfLines={1} style={{color:"white"}}> {audioTitle}</Text>
                </Pressable>
             </View>
