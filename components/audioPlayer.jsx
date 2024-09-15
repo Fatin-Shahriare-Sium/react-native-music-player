@@ -1,5 +1,5 @@
 import { Pressable, StyleSheet, Text, View ,Image,Modal, Dimensions, BackHandler} from 'react-native'
-import React,{useEffect} from 'react'
+import React,{useEffect, useState} from 'react'
 import Slider from '@react-native-community/slider';
 import TextTicker from 'react-native-text-ticker'
 import { LinearGradient } from 'expo-linear-gradient';
@@ -11,12 +11,40 @@ import loopIcon from "../assets/loop.png"
 import shuffleIcon from "../assets/shuffle.png"
 import loveIcon from "../assets/love.png" 
 import musicIcon from "../assets/music-pic.png" 
+import loopActive from "../assets/loop-active.png"
+import loopOne from "../assets/loopOne.png"
+const AudioPlayer = ({isModalShow,modalFuc,audioTitle,audioUpdateStatus,playFuc,pauseFuc,playNextFunc,playPreFuc,handleSeek,singleLoopFunc,loopAllFunc,suffleFunc,isPlaying}) => {
 
-const AudioPlayer = ({isModalShow,modalFuc,audioTitle,audioUpdateStatus,playFuc,pauseFuc,playNextFunc,playPreFuc,handleSeek,isPlaying}) => {
+    let [loopBthClickTimes,setLoopBtnClickTimes]=useState(0)
 
+    let determineIcon=()=>{
+        if(loopBthClickTimes==0){
+            return loopIcon
+        }else if(loopBthClickTimes==1){
+            return loopActive
+        }else if(loopBthClickTimes==2){
+            return loopOne
+        }else if(loopBthClickTimes==3){
+            return shuffleIcon
+        }
+    }
+
+    let determineIconFunc=()=>{
+     setLoopBtnClickTimes(loopBthClickTimes+1)
+       
+        if(loopBthClickTimes==0){
+          return  loopAllFunc()
+        }else if(loopBthClickTimes==1){
+            return singleLoopFunc()
+        }else if(loopBthClickTimes==2){
+            return suffleFunc()
+        }else{
+            return setLoopBtnClickTimes(0)
+        }
+
+    }
+    
     let handleDurationFormat=(duration)=>{
-        
-        
             let hours=Math.floor(duration/3600)
             let minutes=Math.floor(duration%3600 /60);
             let seconds=Math.floor(duration%3600 %60)
@@ -93,8 +121,8 @@ const AudioPlayer = ({isModalShow,modalFuc,audioTitle,audioUpdateStatus,playFuc,
                         <Pressable onPress={playNextFunc}>
                             <Image source={nextIcon}/>
                         </Pressable>
-                        <Pressable>
-                            <Image source={loopIcon}/>
+                        <Pressable onPress={determineIconFunc}>
+                            <Image style={{width:32,height:32}} source={determineIcon()}/>
                         </Pressable>
                     </View>
             </View>
@@ -126,7 +154,7 @@ const styles = StyleSheet.create({
         flexDirection:"row",
         width:Dimensions.get("window").width*.9,
         marginLeft:15,
-        marginTop:5
+        marginTop:15
     },
     audioImgWrapper:{
         height:Dimensions.get("window").height*.6,

@@ -2,6 +2,7 @@ import {Pressable,Text} from "react-native"
 import React, { createContext, useContext, useEffect, useState } from 'react'
 import * as MediaLibrary from "expo-media-library";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import useStoreCurrentAudioFile from "../hooks/useStoreCurrentAudioFile";
 let GloblaMusicProvider=createContext();
 export let useMusicProvider=()=>useContext(GloblaMusicProvider);
  
@@ -17,6 +18,15 @@ const storeData = async (value) => {
 let MusicProvider=({children})=> {
     let [allAudioFiles,setAllAudioFiles]=useState([]);
     let [audioQueue,setAudioQueue]=useState([])
+    let [currentAudioFile,setCurrentAudioFile]=useState({title:"",id:"",uri:"",index:"",activeDuration:0,totalDuration:0});
+
+    let handleAudioSelect=(audioId,audioUri,audioTitle,index)=>{
+      console.log("handleAudioIndex in indexjs",index);
+      
+      setCurrentAudioFile({title:audioTitle,uri:audioUri,id:audioId,index,activeDuration:0,totalDuration:0})
+      useStoreCurrentAudioFile({title:audioTitle,uri:audioUri,id:audioId,index,activeDuration:0,totalDuration:0})
+    }
+
     let getAudioFiles = async () => {
         await MediaLibrary.requestPermissionsAsync()
         let media = await MediaLibrary.getAssetsAsync({
@@ -41,13 +51,24 @@ let MusicProvider=({children})=> {
             setAllAudioFiles([...allAudioFilesParsed])
             setAudioQueue([...allAudioFilesParsed])
         })
+     
+      },[])
+      useEffect(()=>{
+        AsyncStorage.getItem("currentAudioFile").then((res)=>{
+          console.log("currentAudioFile from local storage",res);
+          if(res!==null){
+          
+            setCurrentAudioFile(JSON.parse(res))
+          }
+          
+        })
       },[])
 
   return (
-   <GloblaMusicProvider.Provider value={{allAudioFiles,audioQueue}} >
-    <Pressable onPress={()=>getAudioFiles()}>
+   <GloblaMusicProvider.Provider value={{allAudioFiles,audioQueue,currentAudioFile,handleAudioSelect}} >
+    {/* <Pressable onPress={()=>getAudioFiles()}>
         <Text>Check</Text>
-    </Pressable>
+    </Pressable> */}
       {children}
    </GloblaMusicProvider.Provider>
   )

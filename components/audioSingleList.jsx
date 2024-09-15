@@ -4,11 +4,9 @@ import musicLogo from "../assets/music.png"
 import threeDotsIcon from "../assets/threeDots.png"
 const AudioSingleList = ({audioTitle,audioUri,audioId,handleTitleSelect,indexOfAudioFiles}) => {
   useEffect(()=>{
-console.log("indexOfAudioFiles",indexOfAudioFiles
+console.log("indexOfAudioFiles",indexOfAudioFiles);
 
-);
-
-  },[])
+  },[indexOfAudioFiles])
   return (
     <View style={styles.audioSingleListWrapper}>
        
@@ -35,13 +33,12 @@ const styles = StyleSheet.create({
         width:"100%",
         backgroundColor:"black",
         color:"white",
-        fontWeight:"500",
+        fontWeight:"300",
         display:"flex",
         justifyContent:"center",
         alignItems:"center",
         flexDirection:"row",
         padding:9,
-        margin:".7%"
     }
 })
 // #35555f

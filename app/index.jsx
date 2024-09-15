@@ -8,36 +8,27 @@ import MiniAudioBox from '../components/miniAudioBox';
 import AudioSingleList from '../components/audioSingleList';
 import { useMusicProvider } from '../context/musicProvider';
 
-export default function App() {
-  let {allAudioFiles}=useMusicProvider();
-  let [currentAudioFile,setCurrentAudioFile]=useState({title:"",id:"",uri:"",index:""});
-   
+export default function App({x}) {
+  let {allAudioFiles,handleAudioSelect}=useMusicProvider();
 
-    let handleAudioSelect=(audioId,audioUri,audioTitle,index)=>{
-      console.log("handleAudioIndex in indexjs",index);
-      
-      setCurrentAudioFile({title:audioTitle,uri:audioUri,id:audioId,index})
-    }
-
+ useEffect(()=>{  
+  console.log("route",x);
+  
+ },[])
   return (
      <>
         
        
       <ScrollView>
          <View style={styles.container}>
-      <Text>Open up App.js to start working on your app!</Text>
-  
-      <StatusBar style="auto" />
-
-      {currentAudioFile.title && <MiniAudioBox audioUri={currentAudioFile.uri} audioTitle={currentAudioFile.title} audioId={currentAudioFile.id} audioIndex={currentAudioFile.index} ></MiniAudioBox>}
-      <FlatList
-        data={allAudioFiles.slice(0,30)}
-        key={(item)=>item.id}
-        keyExtractor={(item) => item.id}
-      renderItem={(sig)=>{return (<AudioSingleList key={sig.index} audioTitle={sig.item.filename} indexOfAudioFiles={sig.index} audioId={sig.item.id} audioUri={sig.item.uri} handleTitleSelect={handleAudioSelect}></AudioSingleList>)}}
-    maxToRenderPerBatch={5}
-      />
-    </View>
+              <FlatList
+                data={allAudioFiles.slice(0,30)}
+                key={(item)=>item.id}
+                keyExtractor={(item) => item.id}
+              renderItem={(sig)=>{return (<AudioSingleList key={sig.index} audioTitle={sig.item.filename} indexOfAudioFiles={sig.index} audioId={sig.item.id} audioUri={sig.item.uri} handleTitleSelect={handleAudioSelect}></AudioSingleList>)}}
+            maxToRenderPerBatch={5}
+              />
+          </View>
       </ScrollView>
      
      </>
@@ -46,7 +37,7 @@ export default function App() {
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
+    display:"flex",
     backgroundColor: '#fff',
     alignItems: 'center',
     justifyContent: 'center',

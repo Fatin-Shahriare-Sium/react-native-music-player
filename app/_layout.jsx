@@ -1,19 +1,35 @@
 import { Dimensions, ScrollView, StyleSheet, Text, View } from 'react-native'
-import React from 'react'
+import React, { useState } from 'react'
 import MusicProvider from '../context/musicProvider';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Stack } from 'expo-router';
+import { Stack, Tabs } from 'expo-router';
+import MiniAudioBox from '../components/miniAudioBox';
+import MiniAudioBoxWrapper from '../components/miniAudioBoxWrapper';
+import { BottomTabBar } from '@react-navigation/bottom-tabs';
+
 
 const _layout = () => {
-  return (
-    <SafeAreaView style={{height:Dimensions.get("window").height,width:Dimensions.get("window").width}}>
-        <MusicProvider>
 
-             <Stack>
-                <Stack.Screen name='index'options={{headerShown:false}}></Stack.Screen>
-             </Stack>
+  return (
+    <SafeAreaView>
+       
+          <MusicProvider>
+          <View style={{height:Dimensions.get("window").height}} >
+            <Tabs screenOptions={{tabBarStyle:{backgroundColor:"red",marginBottom:"8%"}}}  tabBar={(props)=>{
+             return(
+              <>
+             <MiniAudioBoxWrapper></MiniAudioBoxWrapper>
+              <BottomTabBar {...props} />
+              </>
+             )
+              
+            }} >
+              <Tabs.Screen name='index' options={{headerShown:false}} />
+            </Tabs>
  
-        </MusicProvider>
+            </View>
+          </MusicProvider>
+       
     </SafeAreaView>
     
   )
