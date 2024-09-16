@@ -9,13 +9,32 @@ import nextIcon from "../assets/next.png"
 import previousIcon from "../assets/previous.png"
 import loopIcon from "../assets/loop.png"
 import shuffleIcon from "../assets/shuffle.png"
+import loveRedIcon from "../assets/love-red.png" 
 import loveIcon from "../assets/love.png" 
 import musicIcon from "../assets/music-pic.png" 
 import loopActive from "../assets/loop-active.png"
 import loopOne from "../assets/loopOne.png"
-const AudioPlayer = ({isModalShow,modalFuc,audioTitle,audioUpdateStatus,playFuc,pauseFuc,playNextFunc,playPreFuc,handleSeek,singleLoopFunc,loopAllFunc,suffleFunc,isPlaying}) => {
+import useUpdateAudioCommand from '../hooks/useUpdateAudioCommand';
+import useGetAudioCommand from '../hooks/useGetAudioCommand';
+const AudioPlayer = ({isModalShow,modalFuc,audioTitle,audioUpdateStatus,playFuc,pauseFuc,playNextFunc,playPreFuc,handleSeek,singleLoopFunc,loopAllFunc,suffleFunc,isPlaying,playOnceFunc,isFav,setAudioAsFav,deleteAudioAsFav}) => {
 
     let [loopBthClickTimes,setLoopBtnClickTimes]=useState(0)
+
+    useEffect(()=>{
+        useGetAudioCommand().then((res)=>{
+            console.log("res in audioplayer useEffect",res);
+            if(res.willLoopAllAudio){
+                setLoopBtnClickTimes(1)
+            }else if(res.willLoopOneAudio){
+                setLoopBtnClickTimes(2)
+            }else if(res.willShuffleAudio){
+                setLoopBtnClickTimes(3)
+            }else{
+                setLoopBtnClickTimes(0)
+            }
+        })
+        
+    },[])
 
     let determineIcon=()=>{
         if(loopBthClickTimes==0){
@@ -31,6 +50,7 @@ const AudioPlayer = ({isModalShow,modalFuc,audioTitle,audioUpdateStatus,playFuc,
 
     let determineIconFunc=()=>{
      setLoopBtnClickTimes(loopBthClickTimes+1)
+       console.log("determineIconFunc",loopBthClickTimes);
        
         if(loopBthClickTimes==0){
           return  loopAllFunc()
@@ -39,6 +59,7 @@ const AudioPlayer = ({isModalShow,modalFuc,audioTitle,audioUpdateStatus,playFuc,
         }else if(loopBthClickTimes==2){
             return suffleFunc()
         }else{
+            playOnceFunc()
             return setLoopBtnClickTimes(0)
         }
 
@@ -104,9 +125,9 @@ const AudioPlayer = ({isModalShow,modalFuc,audioTitle,audioUpdateStatus,playFuc,
                 </View>
                     {/* contoller */}
                     <View style={styles.controllerWrapper}> 
-                        <Pressable>
+                        <Pressable onPress={isFav==true?deleteAudioAsFav:setAudioAsFav}>
                             <View>
-                                <Image source={loveIcon} />
+                                <Image source={isFav==true?loveRedIcon:loveIcon} />
                             </View>
                            
                         </Pressable>

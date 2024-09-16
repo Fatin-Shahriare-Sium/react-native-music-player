@@ -7,43 +7,44 @@ import pauseIcon from "../assets/pause-w.png"
 import loveIcon from "../assets/love.png" 
 import loveRedIcon from "../assets/love-red.png" 
 import * as Progress from 'react-native-progress';
-import { Audio } from 'expo-av';
 import AudioPlayer from './audioPlayer'
 import { useMusicProvider } from '../context/musicProvider'
 import useUpdateCurrentAudioFile from '../hooks/useUpdateCurrentAudioFile'
 import useStoreCurrentAudioFile from '../hooks/useStoreCurrentAudioFile'
 const MiniAudioBox = () => {
-  let {currentAudioFile,audioQueue,isplaying,setIsPlaying,willSuffle,setWillSuffle}=useMusicProvider()
+  let {currentAudioFile,audioQueue,isplaying,setIsPlaying,willSuffle,isLoopSingle,isLoopingAll,handlePlayOnec,handleSuffle,soundx,handleSingleLoop,handleLoopAll,isFav,setAudioAsFav,deleteAudioAsFav}=useMusicProvider()
   let audioUri=currentAudioFile.uri
   let audioTitle=currentAudioFile.title
   let audioId=currentAudioFile.id
   let audioIndex=currentAudioFile.index
  
-    let [audioCurrentStatus,setAudioCurrentStatus]=useState({currentDuration:currentAudioFile.activeDuration,totalDuration:0})
-    let [isFav,setIsFav]=useState(false)
-    let [isLoopSingle,setIsLoopSingle]=useState(false)
+    let [audioCurrentStatus,setAudioCurrentStatus]=useState({currentDuration:currentAudioFile.activeDuration,totalDuration:currentAudioFile.totalDuration})
     let intervalRef=useRef(null)
     let [showModal,setShowModal]=useState(false)
-    const soundx =useRef(new Audio.Sound());
     let [currentAudioQueue,setCurrentAudioQueue]=useState([...audioQueue])
     let [currentAudioObj,setCurrentAudioObj]=useState({index:audioIndex,uri:audioUri,filename:audioTitle,audioId:audioId})
-    let [isLoopingAll,setIsLoopingAll]=useState(false)
-  
+    let [audioHasRecentlyFinisedCalledTimes,setAudioHasRecentlyFinishedCalledTimes]=useState(0)
     
-    
+
     //hanlde audioplayer modal
      let handleModal=()=>{
       return setShowModal(!showModal)
     }
     useEffect(()=>{
-      console.log("audio queue in miniAudioBox",audioQueue);
+      setCurrentAudioObj({index:currentAudioFile.index,uri:currentAudioFile.uri,audioId:currentAudioFile.id,filename:currentAudioFile.title})
+    },[currentAudioFile])
+    useEffect(()=>{
+      // console.log("audio queue in miniAudioBox",audioQueue);
       setCurrentAudioQueue([...audioQueue])
     },[audioQueue])
 
     //update currentAudio file if it is stored
     useEffect(()=>{
-
-    },[])
+      soundx.current.setOnMetadataUpdate((res)=>{
+        console.log("res in setOnMetadataUpdate ",res);
+        
+      })
+    },[isplaying])
  //PLAY next Audio
         let playNext=async()=>{
         let randomIndex=Math.floor(Math.random()*currentAudioQueue.length)
@@ -67,23 +68,32 @@ const MiniAudioBox = () => {
         
         }
 
+    //pause audio
+    async function pauseSound() {
+      setIsPlaying(false)
+     await soundx.current.pauseAsync()
+     await useUpdateCurrentAudioFile({title:currentAudioObj.filename,uri:currentAudioObj.uri,id:currentAudioObj.audioId,index:currentAudioObj.index,activeDuration:audioCurrentStatus.currentDuration,totalDuration:audioCurrentStatus.totalDuration})
+     ToastAndroid.show('Pause Song', ToastAndroid.SHORT);
+  
+    }
+
+
+
   //getting current duration fo music
     
     useEffect(()=>{
      
-        
+      setAudioHasRecentlyFinishedCalledTimes(0)
           if(isplaying==true){
+         
                 intervalRef.current=setInterval(()=>{
                   soundx.current.getStatusAsync().then((res)=>{
-            
+                    
                 
                     if(res.isPlaying==false){
-                      console.log("shuffflw staet when res.isPLaying falsae",willSuffle);
-                      if(willSuffle){
-                        playNext()
-                      }else{
+                        setAudioHasRecentlyFinishedCalledTimes(audioHasRecentlyFinisedCalledTimes+1)
                         setIsPlaying(false)
-                      }
+                      
                      
                     }else{
                  
@@ -98,13 +108,17 @@ const MiniAudioBox = () => {
       },[isplaying])
 
 
-    // useEffect(()=>{
-    //   if(isLoopingAll || willSuffle){
-    //     console.log("wil shuffle checking",willSuffle);
-    
-    //    playNext()
-    //   }
-    // },[isplaying])
+    useEffect(()=>{
+      console.log("audioHasRecentlyFinisedCalledTimes",audioHasRecentlyFinisedCalledTimes);
+      if(audioHasRecentlyFinisedCalledTimes==1 && willSuffle==true){
+        console.log("wil shuffle checking",willSuffle);
+       playNext()
+      }else if(audioHasRecentlyFinisedCalledTimes==1 && isLoopingAll==true){
+        playNext()
+      }else if(audioHasRecentlyFinisedCalledTimes==1 && willSuffle==false && isLoopingAll==false && isLoopSingle==false){
+        pauseSound()
+      }
+    },[audioHasRecentlyFinisedCalledTimes])
 
       //handle set audio when user click audioSingelList
       let handleAudioSelect=async (audioId,audioUri,audioTitle,audioIndex,activeDuration,totalDuration)=>{
@@ -125,16 +139,17 @@ const MiniAudioBox = () => {
 
  }
 
-      useEffect(()=>{
-        Audio.setAudioModeAsync({
-            staysActiveInBackground: true,
-          });
-        handleAudioSelect(audioId,audioUri,audioTitle,audioIndex,currentAudioFile.activeDuration,currentAudioFile.totalDuration)
-    },[currentAudioFile])
+
     useEffect(()=>{
       console.log("currentAudioObj",currentAudioObj);
       
     },[currentAudioObj])
+  
+
+
+    useEffect(()=>{
+    
+    },[])
 
     //sync the duration and seekbar when audio pasue
 
@@ -142,7 +157,9 @@ const MiniAudioBox = () => {
     //handle seek audio in slider
      let syncWithAudio=async (syncPosition)=>{
       console.log("syncWithAudio",syncPosition);
-      
+      if(!isplaying){
+        setIsPlaying(true)
+      }
         await soundx.current.setPositionAsync((audioCurrentStatus.totalDuration*1000)*syncPosition)
      
      }
@@ -150,20 +167,12 @@ const MiniAudioBox = () => {
         //play Auido
       async function playSound() {
 
-        await Audio.requestPermissionsAsync()
-        setIsPlaying(true)
        await soundx.current.playAsync()
+       setIsPlaying(true)
        ToastAndroid.show('Play Song', ToastAndroid.SHORT);
        
       }
-    //pause audio
-      async function pauseSound() {
-        setIsPlaying(false)
-       await soundx.current.pauseAsync()
-       await useUpdateCurrentAudioFile({title:currentAudioObj.filename,uri:currentAudioObj.uri,id:currentAudioObj.audioId,index:currentAudioObj.index,activeDuration:audioCurrentStatus.currentDuration,totalDuration:audioCurrentStatus.totalDuration})
-       ToastAndroid.show('Pause Song', ToastAndroid.SHORT);
-    
-      }
+
     //play Audio Prevoius
     let playPrevious=async()=>{
    
@@ -186,41 +195,10 @@ const MiniAudioBox = () => {
 
     
 
-     //single song loop
-     let handleSingleLoop=async()=>{
-      setIsLoopingAll(false)
-      setIsLoopSingle(true)
-      setWillSuffle(false)
-     await soundx.current.setIsLoopingAsync(true)
-     ToastAndroid.show("Loop",ToastAndroid.SHORT)
-     }
-     //loop all audio
-     let handleLoopAll=async ()=>{
-      setWillSuffle(false)
-      setIsLoopSingle(false)
-      setIsLoopingAll(true)
-      await soundx.current.setIsLoopingAsync(false)
-      ToastAndroid.show("Loop All",ToastAndroid.SHORT)
-     }
-     //suffle all audio
-     let handleSuffle=async ()=>{
-      setIsLoopSingle(false)
-      setIsLoopingAll(false)
-      setWillSuffle(true)
-      await soundx.current.setIsLoopingAsync(false)
-      ToastAndroid.show("Suffle All",ToastAndroid.SHORT)
-     }
-      let handleFav=async (audioFileId)=>{
-        setIsFav(true)
-    
-      }
-      let handleRemoveFav=async (audioFileId)=>{
-        setIsFav(false)
-     
-      }
+
   return (
     <View style={{backgroundColor:"black",height:Dimensions.get("window").height*.1,width:Dimensions.get("window").width}}>
- <AudioPlayer suffleFunc={handleSuffle} loopAllFunc={handleLoopAll} singleLoopFunc={handleSingleLoop} playPreFuc={playPrevious} handleSeek={syncWithAudio} modalFuc={handleModal} isModalShow={showModal} playFuc={playSound} pauseFuc={pauseSound} audioUpdateStatus={audioCurrentStatus} playNextFunc={playNext} isPlaying={isplaying} audioTitle={currentAudioObj.filename}></AudioPlayer>
+ <AudioPlayer isFav={isFav} setAudioAsFav={setAudioAsFav} deleteAudioAsFav={deleteAudioAsFav} playOnceFunc={handlePlayOnec} suffleFunc={handleSuffle} loopAllFunc={handleLoopAll} singleLoopFunc={handleSingleLoop} playPreFuc={playPrevious} handleSeek={syncWithAudio} modalFuc={handleModal} isModalShow={showModal} playFuc={playSound} pauseFuc={pauseSound} audioUpdateStatus={audioCurrentStatus} playNextFunc={playNext} isPlaying={isplaying} audioTitle={currentAudioObj.filename}></AudioPlayer>
         <View>
        {audioCurrentStatus.currentDuration>0 &&  <Progress.Bar progress={audioCurrentStatus.currentDuration/audioCurrentStatus.totalDuration}  color={"black"} unfilledColor={"white"} width={Dimensions.get("window").width} height={1} />}
         </View>
@@ -248,8 +226,8 @@ const MiniAudioBox = () => {
                 <Pressable onPress={isplaying==true?pauseSound:playSound}>
                     <Image style={{width:20,height:20}} source={isplaying==true?pauseIcon:playIcon}/>
                 </Pressable>
-                <Pressable >
-                    <Image style={{width:20,height:20}} source={loveIcon}/>
+                <Pressable onPress={isFav==true?deleteAudioAsFav:setAudioAsFav} >
+                    <Image style={{width:20,height:20}} source={isFav==true?loveRedIcon:loveIcon}/>
                     </Pressable>
             </View>
         </View>
