@@ -18,11 +18,13 @@ const storeData = async (value) => {
 let MusicProvider=({children})=> {
     let [allAudioFiles,setAllAudioFiles]=useState([]);
     let [audioQueue,setAudioQueue]=useState([])
+    let [isplaying,setIsPlaying]=useState(false)
+    let [willSuffle,setWillSuffle]=useState(false)
     let [currentAudioFile,setCurrentAudioFile]=useState({title:"",id:"",uri:"",index:"",activeDuration:0,totalDuration:0});
 
     let handleAudioSelect=(audioId,audioUri,audioTitle,index)=>{
       console.log("handleAudioIndex in indexjs",index);
-      
+      setIsPlaying(true)
       setCurrentAudioFile({title:audioTitle,uri:audioUri,id:audioId,index,activeDuration:0,totalDuration:0})
       useStoreCurrentAudioFile({title:audioTitle,uri:audioUri,id:audioId,index,activeDuration:0,totalDuration:0})
     }
@@ -64,8 +66,15 @@ let MusicProvider=({children})=> {
         })
       },[])
 
+      let handlePlayAudio=(boolean)=>{
+        setIsPlaying(boolean);
+      }
+      let handleSuffle=(boolean)=>{
+        setWillSuffle(boolean);
+      }
+
   return (
-   <GloblaMusicProvider.Provider value={{allAudioFiles,audioQueue,currentAudioFile,handleAudioSelect}} >
+   <GloblaMusicProvider.Provider value={{allAudioFiles,audioQueue,currentAudioFile,handleAudioSelect,isplaying,willSuffle,setIsPlaying:handlePlayAudio,setWillSuffle:handleSuffle}} >
     {/* <Pressable onPress={()=>getAudioFiles()}>
         <Text>Check</Text>
     </Pressable> */}

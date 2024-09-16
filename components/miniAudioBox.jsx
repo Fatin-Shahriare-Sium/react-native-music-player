@@ -11,8 +11,9 @@ import { Audio } from 'expo-av';
 import AudioPlayer from './audioPlayer'
 import { useMusicProvider } from '../context/musicProvider'
 import useUpdateCurrentAudioFile from '../hooks/useUpdateCurrentAudioFile'
+import useStoreCurrentAudioFile from '../hooks/useStoreCurrentAudioFile'
 const MiniAudioBox = () => {
-  let {currentAudioFile,audioQueue}=useMusicProvider()
+  let {currentAudioFile,audioQueue,isplaying,setIsPlaying,willSuffle,setWillSuffle}=useMusicProvider()
   let audioUri=currentAudioFile.uri
   let audioTitle=currentAudioFile.title
   let audioId=currentAudioFile.id
@@ -20,7 +21,6 @@ const MiniAudioBox = () => {
  
     let [audioCurrentStatus,setAudioCurrentStatus]=useState({currentDuration:currentAudioFile.activeDuration,totalDuration:0})
     let [isFav,setIsFav]=useState(false)
-    let [isplaying,setIsPlaying]=useState(false)
     let [isLoopSingle,setIsLoopSingle]=useState(false)
     let intervalRef=useRef(null)
     let [showModal,setShowModal]=useState(false)
@@ -28,7 +28,7 @@ const MiniAudioBox = () => {
     let [currentAudioQueue,setCurrentAudioQueue]=useState([...audioQueue])
     let [currentAudioObj,setCurrentAudioObj]=useState({index:audioIndex,uri:audioUri,filename:audioTitle,audioId:audioId})
     let [isLoopingAll,setIsLoopingAll]=useState(false)
-    let [willSuffle,setWillSuffle]=useState(false)
+  
     
     
     //hanlde audioplayer modal
@@ -47,11 +47,12 @@ const MiniAudioBox = () => {
  //PLAY next Audio
         let playNext=async()=>{
         let randomIndex=Math.floor(Math.random()*currentAudioQueue.length)
-          setIsPlaying(false)
+       
           let changeCurrentAudioObj=currentAudioQueue[willSuffle?randomIndex:currentAudioObj.index+1]
           console.log("currentAudioQueue[audioIndex+1].uri",currentAudioQueue);
           setCurrentAudioObj({index:currentAudioObj.index+1,uri:changeCurrentAudioObj.uri,filename:changeCurrentAudioObj.filename,audioId:changeCurrentAudioObj.id})
-         
+         //updating currentAudioFile in storage when next song play
+          useStoreCurrentAudioFile({title:changeCurrentAudioObj.filename,uri:changeCurrentAudioObj.uri,id:changeCurrentAudioObj.id,index:currentAudioObj.index+1,activeDuration:0,totalDuration:0})
           if(soundx.current._loaded==true){
             await soundx.current.pauseAsync()
             await soundx.current.unloadAsync();
@@ -60,10 +61,9 @@ const MiniAudioBox = () => {
           }else{
             await soundx.current.loadAsync({uri: changeCurrentAudioObj.uri},{shouldPlay:true,isLooping:isLoopSingle})
           }
-          ToastAndroid.show('Next Song', ToastAndroid.SHORT);
           setIsPlaying(true)
-       
-          
+          ToastAndroid.show('Next Song', ToastAndroid.SHORT);
+         
         
         }
 
@@ -78,24 +78,13 @@ const MiniAudioBox = () => {
             
                 
                     if(res.isPlaying==false){
-                        console.log("set audio url",res);
-                        if(isLoopingAll){
-                   
-                          
-                           return playNext()
-                        }else if(willSuffle){
-                          console.log("will shuffle in useEffect",willSuffle);
-                          
-                           return playNext()
-                        }else {
-                          soundx.current.pauseAsync().then((res)=>{
-                            setAudioCurrentStatus({currentDuration:0,totalDuration:0})
-                            setIsPlaying(false)
-                            return ()=>{clearInterval(intervalRef.current)}
-                          })
-                        }
-                  
-                      
+                      console.log("shuffflw staet when res.isPLaying falsae",willSuffle);
+                      if(willSuffle){
+                        playNext()
+                      }else{
+                        setIsPlaying(false)
+                      }
+                     
                     }else{
                  
                         setAudioCurrentStatus({currentDuration:res.positionMillis/1000,totalDuration:res.durationMillis/1000})
@@ -109,7 +98,13 @@ const MiniAudioBox = () => {
       },[isplaying])
 
 
-
+    // useEffect(()=>{
+    //   if(isLoopingAll || willSuffle){
+    //     console.log("wil shuffle checking",willSuffle);
+    
+    //    playNext()
+    //   }
+    // },[isplaying])
 
       //handle set audio when user click audioSingelList
       let handleAudioSelect=async (audioId,audioUri,audioTitle,audioIndex,activeDuration,totalDuration)=>{
@@ -117,19 +112,17 @@ const MiniAudioBox = () => {
         console.log("soundx.current._loaded",soundx.current._loaded);
         console.log("handle set audio when user click audioSingelList",audioIndex,audioUri);
         
-        setIsPlaying(false)
-        
         if(soundx.current._loaded==true){
           await soundx.current.pauseAsync()
           await soundx.current.unloadAsync()
-          await soundx.current.loadAsync({uri:audioUri},{isLooping:isLoopSingle,shouldPlay:true,positionMillis:activeDuration*1000});
+          await soundx.current.loadAsync({uri:audioUri},{isLooping:isLoopSingle,shouldPlay:isplaying,positionMillis:activeDuration*1000});
         }else{
-         await soundx.current.loadAsync({uri:audioUri},{isLooping:isLoopSingle,shouldPlay:true,positionMillis:activeDuration*1000});
+         await soundx.current.loadAsync({uri:audioUri},{isLooping:isLoopSingle,shouldPlay:isplaying,positionMillis:activeDuration*1000});
       
         }
 
         setCurrentAudioObj({uri:audioUri,index:audioIndex,filename:audioTitle,audioId})
-        setIsPlaying(true)
+
  }
 
       useEffect(()=>{
@@ -143,11 +136,15 @@ const MiniAudioBox = () => {
       
     },[currentAudioObj])
 
+    //sync the duration and seekbar when audio pasue
+
+
     //handle seek audio in slider
      let syncWithAudio=async (syncPosition)=>{
       console.log("syncWithAudio",syncPosition);
       
         await soundx.current.setPositionAsync((audioCurrentStatus.totalDuration*1000)*syncPosition)
+     
      }
 
         //play Auido
@@ -163,18 +160,18 @@ const MiniAudioBox = () => {
       async function pauseSound() {
         setIsPlaying(false)
        await soundx.current.pauseAsync()
-       await useUpdateCurrentAudioFile({title:audioTitle,uri:audioUri,id:audioId,index:audioIndex,activeDuration:audioCurrentStatus.currentDuration,totalDuration:audioCurrentStatus.totalDuration})
+       await useUpdateCurrentAudioFile({title:currentAudioObj.filename,uri:currentAudioObj.uri,id:currentAudioObj.audioId,index:currentAudioObj.index,activeDuration:audioCurrentStatus.currentDuration,totalDuration:audioCurrentStatus.totalDuration})
        ToastAndroid.show('Pause Song', ToastAndroid.SHORT);
     
       }
     //play Audio Prevoius
     let playPrevious=async()=>{
-        
-      setIsPlaying(false)
+   
       let changeCurrentAudioObj=currentAudioQueue[currentAudioObj.index-1]
       console.log("currentAudioQueue[audioIndex+1].uri",changeCurrentAudioObj);
       setCurrentAudioObj({index:currentAudioObj.index-1,uri:changeCurrentAudioObj.uri,filename:changeCurrentAudioObj.filename,audioId:changeCurrentAudioObj.id})
-     
+      //update stirage when previous button press
+      useStoreCurrentAudioFile({title:changeCurrentAudioObj.filename,uri:changeCurrentAudioObj.uri,id:changeCurrentAudioObj.id,index:currentAudioObj.index-1,activeDuration:0,totalDuration:0})
       if(soundx.current._loaded==true){
         await soundx.current.pauseAsync()
         await soundx.current.unloadAsync();
