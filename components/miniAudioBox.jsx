@@ -38,13 +38,7 @@ const MiniAudioBox = () => {
       setCurrentAudioQueue([...audioQueue])
     },[audioQueue])
 
-    //update currentAudio file if it is stored
-    useEffect(()=>{
-      soundx.current.setOnMetadataUpdate((res)=>{
-        console.log("res in setOnMetadataUpdate ",res);
-        
-      })
-    },[isplaying])
+
  //PLAY next Audio
         let playNext=async()=>{
         let randomIndex=Math.floor(Math.random()*currentAudioQueue.length)
@@ -68,14 +62,7 @@ const MiniAudioBox = () => {
         
         }
 
-    //pause audio
-    async function pauseSound() {
-      setIsPlaying(false)
-     await soundx.current.pauseAsync()
-     await useUpdateCurrentAudioFile({title:currentAudioObj.filename,uri:currentAudioObj.uri,id:currentAudioObj.audioId,index:currentAudioObj.index,activeDuration:audioCurrentStatus.currentDuration,totalDuration:audioCurrentStatus.totalDuration})
-     ToastAndroid.show('Pause Song', ToastAndroid.SHORT);
-  
-    }
+
 
 
 
@@ -173,6 +160,16 @@ const MiniAudioBox = () => {
        
       }
 
+      //pause audio
+     async function pauseSound() {
+      setIsPlaying(false)
+      await soundx.current.pauseAsync()
+      await useUpdateCurrentAudioFile({title:currentAudioObj.filename,uri:currentAudioObj.uri,id:currentAudioObj.audioId,index:currentAudioObj.index,activeDuration:audioCurrentStatus.currentDuration,totalDuration:audioCurrentStatus.totalDuration})
+      ToastAndroid.show('Pause Song', ToastAndroid.SHORT);
+       }
+    
+
+
     //play Audio Prevoius
     let playPrevious=async()=>{
    
@@ -193,8 +190,7 @@ const MiniAudioBox = () => {
       ToastAndroid.show('Previous Song', ToastAndroid.SHORT);  
     }
 
-    
-
+ 
 
   return (
     <View style={{backgroundColor:"black",height:Dimensions.get("window").height*.1,width:Dimensions.get("window").width}}>

@@ -1,4 +1,4 @@
-import {Pressable,Text, ToastAndroid} from "react-native"
+import {Alert, Pressable,Text, ToastAndroid} from "react-native"
 import React, { createContext, useContext, useEffect, useRef, useState } from 'react'
 import * as MediaLibrary from "expo-media-library";
 import { Audio } from 'expo-av';
@@ -8,6 +8,10 @@ import useUpdateAudioCommand from "../hooks/useUpdateAudioCommand";
 import useGetAudioCommand from "../hooks/useGetAudioCommand";
 import useSetAsFav from "../hooks/useSetAsFav";
 import useDeleteFav from "../hooks/useDeleteFav";
+import useUpdateCurrentAudioFile from "../hooks/useUpdateCurrentAudioFile";
+import useUpdateAudioQueue from "../hooks/useUpdateAudioQueue";
+import useUpdateAllAudioFiles from "../hooks/useUpdateAllAudioFiles";
+import useGetAudioQueue from "../hooks/useGetAudioQueue";
 let GloblaMusicProvider=createContext();
 export let useMusicProvider=()=>useContext(GloblaMusicProvider);
  
@@ -30,6 +34,7 @@ let MusicProvider=({children})=> {
     let [isLoopingAll,setIsLoopingAll]=useState(false)
     let [isPlayOnce,setIsPlayOnce]=useState(true)
     let [isFav,setIsFav]=useState(false)
+    let [hasNextToPlayInsisted,setHasNextToPlayInsisted]=useState(false)
     const soundx =useRef(new Audio.Sound());
     
     let handleAudioSelect=async (audioId,audioUri,audioTitle,index)=>{
@@ -68,10 +73,22 @@ let MusicProvider=({children})=> {
       useEffect(()=>{
       
         AsyncStorage.getItem("AllAudioFiles").then((res)=>{
-            let allAudioFilesParsed=JSON.parse(res)
+            if(res){
+              let allAudioFilesParsed=JSON.parse(res)
             // console.log("allfiles",allAudioFilesParsed);
-            setAllAudioFiles([...allAudioFilesParsed])
-            setAudioQueue([...allAudioFilesParsed])
+            setAllAudioFiles([...allAudioFilesParsed].slice(0,30))
+            useGetAudioQueue().then((res)=>{
+              console.log("all audio queue",res);
+              
+              if(res.length==0){
+                setAudioQueue([...allAudioFilesParsed].slice(0,30))
+              }else{
+                setAudioQueue([...res])
+              }
+            })
+          
+            }
+        
         })
      
       },[])
@@ -129,6 +146,7 @@ let MusicProvider=({children})=> {
       let handlePlayAudio=(boolean)=>{
         setIsPlaying(boolean);
       }
+      
 
            //single song loop
      let handleSingleLoop=async()=>{
@@ -188,8 +206,48 @@ let MusicProvider=({children})=> {
         useDeleteFav(currentAudioFile.id)
         ToastAndroid.show("Unfavourite",ToastAndroid.SHORT)
       }
+// handleing audio to next in queue
+      let handleAddAudioToImmediateNextOfTheAudioQueue=(audioIdOfNext)=>{
+        console.log("pressn  next play button",currentAudioFile.index);
+        
+        allAudioFiles.map((sig,index)=>{
+
+          if(sig.id==audioIdOfNext){
+            let newAudioQueue=[...audioQueue.slice(0,currentAudioFile.index+1),sig,...audioQueue.slice(currentAudioFile.index+1)]
+            console.log("newAudioQueue",newAudioQueue);
+            setAudioQueue([...newAudioQueue])
+            useUpdateAudioQueue(newAudioQueue)
+            handleLoopAll()
+            ToastAndroid.show("This audio will play next",ToastAndroid.SHORT)
+          }
+        })
+        
+      }
+
+    // handle remove audio from queue
+    let removeAudioFromQueue=(audioId)=>{
+      let newAudioQueue=audioQueue.filter((sig)=>sig.id!==audioId)
+      let newAllAudioFiles=audioQueue.filter((sig)=>sig.id!==audioId)
+      console.log("removeAudioFromQueue",newAudioQueue);
+    Alert.alert("Remove","This song will remove from this music app,Are you sure??",[
+      {
+        text: 'Cancel',
+        onPress: () => console.log('Cancel Pressed'),
+        
+      },
+      {text: 'OK', onPress: () =>{
+        setAudioQueue([...newAudioQueue])
+        setAllAudioFiles([...newAllAudioFiles])
+        useUpdateAudioQueue([...newAudioQueue])
+        useUpdateAllAudioFiles([...newAllAudioFiles])
+        ToastAndroid.show("Audio is removed from this app",ToastAndroid.SHORT)
+      }},
+    ])
+      
+      
+    }
   return (
-   <GloblaMusicProvider.Provider value={{allAudioFiles,audioQueue,setAudioAsFav,deleteAudioAsFav,isFav,currentAudioFile,handleAudioSelect,isplaying,willSuffle,setIsPlaying:handlePlayAudio,handleSuffle,soundx,handleSingleLoop,isLoopingAll,handleLoopAll,handlePlayOnec}} >
+   <GloblaMusicProvider.Provider value={{allAudioFiles,audioQueue,setAudioAsFav,deleteAudioAsFav,isFav,currentAudioFile,handleAudioSelect,isplaying,willSuffle,setIsPlaying:handlePlayAudio,handleSuffle,soundx,handleSingleLoop,isLoopingAll,handleLoopAll,handlePlayOnec,handleAddAudioToImmediateNextOfTheAudioQueue,removeAudioFromQueue}} >
     {/* <Pressable onPress={()=>getAudioFiles()}>
         <Text>Check</Text>
     </Pressable> */}
