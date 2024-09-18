@@ -41,7 +41,7 @@ const Index = () => {
                 </TouchableOpacity>
                 {allPlayLists.map((sig,index)=>{
                     return(
-                        <TouchableOpacity onPress={()=>router.push(`/${sig.id}`)}>
+                        <TouchableOpacity key={index} onPress={()=>router.push(`/${sig.id}`)}>
                             <Image source={musicLogo}/>
                             <Text>{sig.name}</Text>
                         </TouchableOpacity>

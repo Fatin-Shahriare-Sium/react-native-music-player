@@ -1,15 +1,32 @@
 import { Dimensions, StyleSheet, Text, TextInput, View,Image } from 'react-native'
-import React from 'react'
+import React, { useState } from 'react'
 import { useMusicProvider } from '../context/musicProvider'
 import searchIcon from "../assets/search.png"
-const AddAudioInPlaylist = () => {
+import SingleAudioOfPlaylist from './singleAudioOfPlaylist'
+const AddAudioInPlaylist = ({handleAddAudioToPlaylist}) => {
     let {allAudioFiles}=useMusicProvider()
+    let [seachedAudio,setSearchedAudio]=useState([])
+    let handleSearchBar=(text)=>{
+        console.log(allAudioFiles);
+        
+        let filteredArray=allAudioFiles.filter((sig)=>sig.filename.match(text))
+        console.log("filter in search bar",filteredArray);
+        
+        setSearchedAudio([...filteredArray])
+    }
   return (
          <View>
                 <View style={styles.inputBoxWrapper}>
                 <Image  style={styles.searchIconPosition} source={searchIcon}/>
-                    <TextInput placeholderTextColor={"white"} style={styles.inputBoxPlaylist} placeholder='serach'></TextInput>
+                    <TextInput onChangeText={(e)=>handleSearchBar(e)} placeholderTextColor={"white"} style={styles.inputBoxPlaylist} placeholder='serach'></TextInput>
                     
+                </View>
+                <View>
+                    {seachedAudio.map((sig,index)=>{
+                        return(
+                            <SingleAudioOfPlaylist key={index} handleAddBtn={handleAddAudioToPlaylist} audioTitle={sig.filename} audioId={sig.id}></SingleAudioOfPlaylist>
+                        )
+                    })}
                 </View>
          </View>
   )

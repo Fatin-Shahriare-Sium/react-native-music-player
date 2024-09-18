@@ -1,8 +1,8 @@
-import { StyleSheet, Text, View } from 'react-native'
+import { StyleSheet, Text, View,Image,Pressable,TouchableOpacity } from 'react-native'
 import React from 'react'
 import musicLogo from "../assets/music.png"
 import addLogo from "../assets/add-playlist.png"
-const SingleAudioOfPlaylist = () => {
+const SingleAudioOfPlaylist = ({audioTitle,audioId,handleAddBtn}) => {
   return (
             <View style={styles.audioSingleListWrapper}>
                         
@@ -16,7 +16,7 @@ const SingleAudioOfPlaylist = () => {
             </Pressable>
             </View>
             <View style={{marginLeft:"3%"}}>
-                <TouchableOpacity onPress={()=>{}}>
+                <TouchableOpacity onPress={()=>{handleAddBtn(audioId)}}>
                 <Image source={addLogo}/>
                 </TouchableOpacity>
             </View>

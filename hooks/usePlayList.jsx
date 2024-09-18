@@ -1,8 +1,8 @@
 import AsyncStorage from "@react-native-async-storage/async-storage"
-
+import uuid from 'react-native-uuid';
 export let useCreatePlaylist=async (nameOfPlayList)=>{
     let res=await AsyncStorage.getItem("allPlaylists")
-    let id=Math.floor(Math.random()*433)
+    let id=uuid.v4();
 
     let playList={
         id,
@@ -32,6 +32,8 @@ export let useCreatePlaylist=async (nameOfPlayList)=>{
 export let useGetPlayList=async (idOfPlaylists)=>{
     let result=await AsyncStorage.getItem("allPlaylists")
     let filterdArray=JSON.parse(result).filter((sig)=>sig.id==idOfPlaylists)
+    console.log("useGetPlayList one",filterdArray);
+    
     return filterdArray;
 }   
 
@@ -42,11 +44,13 @@ export let useGetAllPlayLists=async ()=>{
     return JSON.parse(result)
 }
 
-export let useAddAudioToPlaylist=async(playlistId,audioId)=>{
+export let useAddAudioToPlaylist=async(playlistId,audioObj)=>{
     let result=await AsyncStorage.getItem("allPlaylists")
     let filterdArray=JSON.parse(result).filter((sig)=>sig.id==playlistId)
     let withoutFilterArray=JSON.parse(result).filter((sig)=>sig.id!==playlistId)
-    filterdArray[0].audios.push(audioId)
-    withoutFilterArray.push(filterdArray)
-    console.log("AddAudioToPlaylist",filterdArray);
+    filterdArray[0].audios.push(audioObj)
+    withoutFilterArray.push(filterdArray[0])
+    await AsyncStorage.removeItem("allPlaylists")
+    await AsyncStorage.setItem("allPlaylists",JSON.stringify(withoutFilterArray))
+    console.log("AddAudioToPlaylist",withoutFilterArray[2]);
 }

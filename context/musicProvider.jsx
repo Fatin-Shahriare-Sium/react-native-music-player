@@ -8,7 +8,6 @@ import useUpdateAudioCommand from "../hooks/useUpdateAudioCommand";
 import useGetAudioCommand from "../hooks/useGetAudioCommand";
 import useSetAsFav from "../hooks/useSetAsFav";
 import useDeleteFav from "../hooks/useDeleteFav";
-import useUpdateCurrentAudioFile from "../hooks/useUpdateCurrentAudioFile";
 import useUpdateAudioQueue from "../hooks/useUpdateAudioQueue";
 import useUpdateAllAudioFiles from "../hooks/useUpdateAllAudioFiles";
 import useGetAudioQueue from "../hooks/useGetAudioQueue";
@@ -71,7 +70,7 @@ let MusicProvider=({children})=> {
       }
 
       useEffect(()=>{
-      
+   
         AsyncStorage.getItem("AllAudioFiles").then((res)=>{
             if(res){
               let allAudioFilesParsed=JSON.parse(res)
@@ -110,6 +109,7 @@ let MusicProvider=({children})=> {
       },[])
 
       useEffect(()=>{
+    
         AsyncStorage.getItem("favArray").then((res)=>{
           console.log("Fav Array in useffect to get all audio id",JSON.parse(res));
           let paredArray=JSON.parse(res)
@@ -208,6 +208,8 @@ let MusicProvider=({children})=> {
         useDeleteFav(currentAudioFile.id)
         ToastAndroid.show("Unfavourite",ToastAndroid.SHORT)
       }
+
+      
 // handleing audio to next in queue
       let handleAddAudioToImmediateNextOfTheAudioQueue=(audioIdOfNext)=>{
         console.log("pressn  next play button",currentAudioFile.index);
