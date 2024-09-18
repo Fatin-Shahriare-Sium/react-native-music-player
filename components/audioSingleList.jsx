@@ -10,8 +10,9 @@ import removeIcon from "../assets/remove.png"
 import playNextIcon from "../assets/play-next.png"
 import RBSheet from 'react-native-raw-bottom-sheet';
 import { useMusicProvider } from '../context/musicProvider'
-const AudioSingleList = ({audioTitle,audioUri,audioId,handleTitleSelect,indexOfAudioFiles}) => {
-  let {setAudioAsFav,deleteAudioAsFav,isFav,handleAddAudioToImmediateNextOfTheAudioQueue,removeAudioFromQueue}=useMusicProvider()
+import { router } from 'expo-router'
+const AudioSingleList = ({audioTitle,audioUri,audioId,handleTitleSelect,indexOfAudioFiles,isPlayingFromPlaylist,playListAudioQueue,playListId,handleRefreshPlaylsit}) => {
+  let {setAudioAsFav,deleteAudioAsFav,isFav,handleAddAudioToImmediateNextOfTheAudioQueue,removeAudioFromQueue,handleRemoveAudioFromPlaylsit}=useMusicProvider()
   const refRBSheet = useRef();
   useEffect(()=>{
 console.log("indexOfAudioFiles",indexOfAudioFiles);
@@ -25,7 +26,7 @@ console.log("indexOfAudioFiles",indexOfAudioFiles);
             </View>
 
             <View style={{width:"70%",marginLeft:"3%"}} >
-               <Pressable onPress={()=>handleTitleSelect(audioId,audioUri,audioTitle,indexOfAudioFiles)}>
+               <Pressable onPress={()=>isPlayingFromPlaylist==true?handleTitleSelect(playListAudioQueue,playListId,audioId,audioUri,audioTitle,indexOfAudioFiles):handleTitleSelect(audioId,audioUri,audioTitle,indexOfAudioFiles)}>
                <Text  numberOfLines={1} style={{color:"white"}}>{audioTitle}</Text>
                </Pressable>
             </View>
@@ -67,7 +68,7 @@ console.log("indexOfAudioFiles",indexOfAudioFiles);
               <Text numberOfLines={1} style={{fontSize:20,color:"white",textAlign:"center"}}>{audioTitle}</Text>
               <View  style={{display:"flex",justifyContent:"space-around",alignItems:"center",flexDirection:"row",marginTop:"5%"}}>
                   <Pressable style={{display:"flex",justifyContent:"center",alignItems:"center"}} >
-                      <TouchableOpacity onPressOut={()=>refRBSheet.current.close()} onPress={()=>handleTitleSelect(audioId,audioUri,audioTitle,indexOfAudioFiles)} ><Image  source={playIcon}/></TouchableOpacity>
+                      <TouchableOpacity onPressOut={()=>refRBSheet.current.close()} onPress={()=>isPlayingFromPlaylist==true?handleTitleSelect(playListAudioQueue,playListId,audioId,audioUri,audioTitle,indexOfAudioFiles):handleTitleSelect(audioId,audioUri,audioTitle,indexOfAudioFiles)} ><Image  source={playIcon}/></TouchableOpacity>
                       <Text style={{fontSize:15,color:"white"}}>Play</Text>
                   </Pressable>
                   <Pressable style={{display:"flex",justifyContent:"center",alignItems:"center"}}>
@@ -79,11 +80,14 @@ console.log("indexOfAudioFiles",indexOfAudioFiles);
                       <Text style={{fontSize:15,color:"white"}}>Play Next</Text>
                   </Pressable >
                   <Pressable style={{display:"flex",justifyContent:"center",alignItems:"center"}}>
-                      <TouchableOpacity onPressOut={()=>refRBSheet.current.close()}><Image source={addListIcon}/></TouchableOpacity>
+                      <TouchableOpacity onPressOut={()=>refRBSheet.current.close()} onPress={()=>router.push(`(AddAudioToPlayList)/${audioId}`)}><Image source={addListIcon}/></TouchableOpacity>
                       <Text style={{fontSize:15,color:"white"}}>PlayList</Text>
                   </Pressable>
                   <Pressable  style={{display:"flex",justifyContent:"center",alignItems:"center"}}>
-                        <TouchableOpacity onPressOut={()=>refRBSheet.current.close()} onPress={()=>removeAudioFromQueue(audioId)} ><Image source={removeIcon}/></TouchableOpacity>
+                        <TouchableOpacity onPressOut={()=>{
+                          refRBSheet.current.close(),
+                          handleRefreshPlaylsit(audioId)
+                        }} onPress={()=>isPlayingFromPlaylist?handleRemoveAudioFromPlaylsit(playListId,audioId):removeAudioFromQueue(audioId)} ><Image source={removeIcon}/></TouchableOpacity>
                         
                       <Text style={{fontSize:15,color:"white"}}>Remove</Text>
                   </Pressable>

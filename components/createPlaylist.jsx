@@ -15,7 +15,7 @@ const CreatePlayList = ({modalShow,handleModal,handleCreatePlayList}) => {
                             <Text style={{fontWeight:"bold"}}>Cancle</Text>
                         </Pressable>
                         
-                        <Pressable onPress={()=>handleCreatePlayList(name)} style={{backgroundColor:"white",paddingHorizontal:10,paddingVertical:5}}>
+                        <Pressable onPressOut={()=>handleModal()} onPress={()=>handleCreatePlayList(name)} style={{backgroundColor:"white",paddingHorizontal:10,paddingVertical:5}}>
                             <Text style={{fontWeight:"bold"}}>Create</Text>
                         </Pressable>
                       

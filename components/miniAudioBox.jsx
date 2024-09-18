@@ -44,6 +44,9 @@ const MiniAudioBox = () => {
         let randomIndex=Math.floor(Math.random()*currentAudioQueue.length)
        
           let changeCurrentAudioObj=currentAudioQueue[willSuffle?randomIndex:currentAudioObj.index+1]
+          if(!changeCurrentAudioObj){
+            changeCurrentAudioObj=currentAudioQueue[0]
+          }
           console.log("currentAudioQueue[audioIndex+1].uri",currentAudioQueue);
           setCurrentAudioObj({index:currentAudioObj.index+1,uri:changeCurrentAudioObj.uri,filename:changeCurrentAudioObj.filename,audioId:changeCurrentAudioObj.id})
          //updating currentAudioFile in storage when next song play

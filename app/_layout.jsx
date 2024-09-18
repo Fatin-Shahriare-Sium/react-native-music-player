@@ -1,5 +1,5 @@
 import { Dimensions, ScrollView, StyleSheet, Text, View } from 'react-native'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import MusicProvider from '../context/musicProvider';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Stack, Tabs } from 'expo-router';
@@ -9,6 +9,7 @@ import { BottomTabBar } from '@react-navigation/bottom-tabs';
 
 
 const _layout = () => {
+
 
   return (
     <SafeAreaView>
@@ -26,6 +27,7 @@ const _layout = () => {
             }} >
               <Tabs.Screen name='index' options={{headerShown:false}} />
               <Tabs.Screen name='(library)' options={{headerShown:false}} />
+              <Tabs.Screen name='(addToPlayList)'  options={{href:null}}/>
             </Tabs>
  
             </View>

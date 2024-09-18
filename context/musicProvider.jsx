@@ -11,6 +11,7 @@ import useDeleteFav from "../hooks/useDeleteFav";
 import useUpdateAudioQueue from "../hooks/useUpdateAudioQueue";
 import useUpdateAllAudioFiles from "../hooks/useUpdateAllAudioFiles";
 import useGetAudioQueue from "../hooks/useGetAudioQueue";
+import { useGetPlayList, useRemoveAudioFromPlaylist, useSetPlayingPlaylistQueue } from "../hooks/usePlayList";
 let GloblaMusicProvider=createContext();
 export let useMusicProvider=()=>useContext(GloblaMusicProvider);
  
@@ -33,13 +34,14 @@ let MusicProvider=({children})=> {
     let [isLoopingAll,setIsLoopingAll]=useState(false)
     let [isPlayOnce,setIsPlayOnce]=useState(true)
     let [isFav,setIsFav]=useState(false)
+    let [isPlayingPlaylist,setIsPlayingPlaylist]=useState(false)
     let [hasNextToPlayInsisted,setHasNextToPlayInsisted]=useState(false)
     const soundx =useRef(new Audio.Sound());
     
     let handleAudioSelect=async (audioId,audioUri,audioTitle,index)=>{
       console.log("handleAudioIndex in indexjs",index);
       setIsPlaying(true)
-       
+      setIsPlayingPlaylist(false)
       if(soundx.current._loaded==true){
         await soundx.current.pauseAsync()
         await soundx.current.unloadAsync()
@@ -51,7 +53,30 @@ let MusicProvider=({children})=> {
       setIsFav(false)
       setCurrentAudioFile({title:audioTitle,uri:audioUri,id:audioId,index,activeDuration:0,totalDuration:0})
       useStoreCurrentAudioFile({title:audioTitle,uri:audioUri,id:audioId,index,activeDuration:0,totalDuration:0})
+      AsyncStorage.removeItem("playListPlaying")
     }
+
+    //handle audio play when user plays from playlist
+
+    let handleAudioSelectFromPlaylist=async (playListAudioArray,playListId,audioId,audioUri,audioTitle,index)=>{
+      setIsPlaying(true)
+       setIsPlayingPlaylist(true)
+      if(soundx.current._loaded==true){
+        await soundx.current.pauseAsync()
+        await soundx.current.unloadAsync()
+        await soundx.current.loadAsync({uri:audioUri},{isLooping:isLoopSingle,shouldPlay:true});
+      }else{
+       await soundx.current.loadAsync({uri:audioUri},{isLooping:isLoopSingle,shouldPlay:true});
+    
+      }
+      setAudioQueue(playListAudioArray)
+      setIsFav(false)
+      setCurrentAudioFile({title:audioTitle,uri:audioUri,id:audioId,index,activeDuration:0,totalDuration:0})
+      useStoreCurrentAudioFile({title:audioTitle,uri:audioUri,id:audioId,index,activeDuration:0,totalDuration:0})
+      useSetPlayingPlaylistQueue(true,playListId)
+     
+    }
+
 
     let getAudioFiles = async () => {
         await MediaLibrary.requestPermissionsAsync()
@@ -70,22 +95,13 @@ let MusicProvider=({children})=> {
       }
 
       useEffect(()=>{
-   
+       // AsyncStorage.removeItem("allPlaylists")
         AsyncStorage.getItem("AllAudioFiles").then((res)=>{
             if(res){
               let allAudioFilesParsed=JSON.parse(res)
             // console.log("allfiles",allAudioFilesParsed);
             setAllAudioFiles([...allAudioFilesParsed].slice(0,30))
-            useGetAudioQueue().then((res)=>{
-              console.log("all audio queue",res);
-              
-              if(res.length==0){
-                setAudioQueue([...allAudioFilesParsed].slice(0,30))
-              }else{
-                setAudioQueue([...res])
-              }
-            })
-          
+           
             }else{
               setAllAudioFiles([])
             }
@@ -107,6 +123,41 @@ let MusicProvider=({children})=> {
           
         })
       },[])
+
+      useEffect(()=>{
+       AsyncStorage.getItem("playListPlaying").then((result)=>{
+        if(result!==null){
+          let resultParsed=JSON.parse(result)
+            if(resultParsed.isPlayingPlayList==true){
+              setIsPlayingPlaylist(true)
+              useGetPlayList(resultParsed.playListId).then((res)=>{
+                console.log("res[0].audios",res[0].audios);
+                
+                setAudioQueue(res[0].audios)
+              })
+            }
+          
+         }else{
+          setIsPlayingPlaylist(false)
+          useGetAudioQueue().then((res)=>{
+            console.log("all audio queue",res);
+            
+            if(res.length==0){
+              setAudioQueue([...allAudioFiles].slice(0,30))
+            }else{
+              setAudioQueue([...res])
+            }
+          })
+        
+         }
+       })
+       
+       
+      },[isPlayingPlaylist,allAudioFiles])
+      useEffect(()=>{
+        console.log("audiomain queue in music provider",audioQueue);
+        
+      },[audioQueue])
 
       useEffect(()=>{
     
@@ -246,12 +297,19 @@ let MusicProvider=({children})=> {
         useUpdateAllAudioFiles([...newAllAudioFiles])
         ToastAndroid.show("Audio is removed from this app",ToastAndroid.SHORT)
       }},
-    ])
-      
-      
+    ])}
+
+    let handleRemoveAudioFromPlaylsit=(playListId,audioId)=>{
+        let newAudioQueue=audioQueue.filter((sig)=>sig.id!==audioId)
+          setAudioQueue([...newAudioQueue])
+          useUpdateAudioQueue([...newAudioQueue])
+          useRemoveAudioFromPlaylist(playListId,audioId)
+          ToastAndroid.show("Audio is removed from this playlist",ToastAndroid.SHORT)
+       
     }
+
   return (
-   <GloblaMusicProvider.Provider value={{allAudioFiles,audioQueue,setAudioAsFav,deleteAudioAsFav,isFav,currentAudioFile,handleAudioSelect,isplaying,willSuffle,setIsPlaying:handlePlayAudio,handleSuffle,soundx,handleSingleLoop,isLoopingAll,handleLoopAll,handlePlayOnec,handleAddAudioToImmediateNextOfTheAudioQueue,removeAudioFromQueue}} >
+   <GloblaMusicProvider.Provider value={{allAudioFiles,audioQueue,setAudioAsFav,deleteAudioAsFav,isFav,currentAudioFile,handleAudioSelect,handleAudioSelectFromPlaylist,isplaying,willSuffle,setIsPlaying:handlePlayAudio,handleSuffle,soundx,handleSingleLoop,isLoopingAll,handleLoopAll,handlePlayOnec,handleAddAudioToImmediateNextOfTheAudioQueue,removeAudioFromQueue,handleRemoveAudioFromPlaylsit}} >
     {/* <Pressable onPress={()=>getAudioFiles()}>
         <Text>Check</Text>
     </Pressable> */}

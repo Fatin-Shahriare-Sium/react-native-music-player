@@ -8,7 +8,7 @@ import { useMusicProvider } from '../../context/musicProvider'
 
 const OnePlayList = () => {
    let {onePlayListId}= useLocalSearchParams()
-   let {handleAudioSelect,allAudioFiles}=useMusicProvider()
+   let {handleAudioSelectFromPlaylist,allAudioFiles,audioQueue}=useMusicProvider()
    let [singlePlayListObj,setSinglePlayListObj]=useState({name:"",id:"",audios:[]})
    useEffect(()=>{
     useGetPlayList(onePlayListId).then((result)=>{
@@ -17,6 +17,10 @@ const OnePlayList = () => {
       setSinglePlayListObj(...result)
     })
    },[])
+   let needRefresh=(audioId)=>{
+    let filterdArray=singlePlayListObj.audios.filter((sig)=>sig.id!==audioId)
+    setSinglePlayListObj({...singlePlayListObj,audios:filterdArray})
+   }
   let handleAddAudioToPlaylist=async (audioId)=>{
     let filteredArray=allAudioFiles.filter((sig)=>sig.id==audioId)
     setSinglePlayListObj({...singlePlayListObj,audios:[...singlePlayListObj.audios,...filteredArray]})
@@ -39,7 +43,7 @@ const OnePlayList = () => {
                 data={singlePlayListObj.audios}
                 key={(item)=>item.id}
                 keyExtractor={(item) => item.id}
-              renderItem={(sig)=>{return (<AudioSingleList  audioUri={sig.item.uri} audioTitle={sig.item.filename} audioId={sig.item.id} handleTitleSelect={handleAudioSelect}  ></AudioSingleList>)}}
+              renderItem={(sig)=>{return (<AudioSingleList handleRefreshPlaylsit={needRefresh} isPlayingFromPlaylist={true} playListId={singlePlayListObj.id} playListAudioQueue={singlePlayListObj.audios}  indexOfAudioFiles={sig.index} audioUri={sig.item.uri} audioTitle={sig.item.filename} audioId={sig.item.id} handleTitleSelect={handleAudioSelectFromPlaylist}  ></AudioSingleList>)}}
               refreshing={singlePlayListObj}
               />
      

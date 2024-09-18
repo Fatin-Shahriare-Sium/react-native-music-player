@@ -54,3 +54,25 @@ export let useAddAudioToPlaylist=async(playlistId,audioObj)=>{
     await AsyncStorage.setItem("allPlaylists",JSON.stringify(withoutFilterArray))
     console.log("AddAudioToPlaylist",withoutFilterArray[2]);
 }
+
+export let useRemoveAudioFromPlaylist=async(playlistId,audioId)=>{
+    let result=await AsyncStorage.getItem("allPlaylists")
+    let filterdArray=JSON.parse(result).filter((sig)=>sig.id==playlistId)
+    let withoutFilterArray=JSON.parse(result).filter((sig)=>sig.id!==playlistId)
+    let afterRemovedArray=filterdArray[0].audios.filter((sig)=>sig.id!==audioId)
+    filterdArray[0].audios=afterRemovedArray
+    withoutFilterArray.push(filterdArray[0])
+    await AsyncStorage.removeItem("allPlaylists")
+    await AsyncStorage.setItem("allPlaylists",JSON.stringify(withoutFilterArray))
+    console.log("RemoveAudioFromPlaylist",filterdArray[0]);
+    
+}
+
+export let useSetPlayingPlaylistQueue=async(boolean,playlistId)=>{
+    let playingPlayListDeterminer={
+        isPlayingPlayList:boolean,
+        playListId:playlistId
+    }
+    await AsyncStorage.removeItem("playListPlaying")
+    await AsyncStorage.setItem("playListPlaying",JSON.stringify(playingPlayListDeterminer))
+}
