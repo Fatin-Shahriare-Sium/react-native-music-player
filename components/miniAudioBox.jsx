@@ -71,17 +71,16 @@ const MiniAudioBox = () => {
     useEffect(()=>{
      
       setAudioHasRecentlyFinishedCalledTimes(0)
+      console.log("upper code interval");
+      
           if(isplaying==true){
          
                 intervalRef.current=setInterval(()=>{
                   soundx.current.getStatusAsync().then((res)=>{
-                    
-                
-                    if(res.isPlaying==false){
-                        setAudioHasRecentlyFinishedCalledTimes(audioHasRecentlyFinisedCalledTimes+1)
+                    if(res.positionMillis>0 && res.positionMillis==res.durationMillis){
+                       setAudioHasRecentlyFinishedCalledTimes(audioHasRecentlyFinisedCalledTimes+1)
                         setIsPlaying(false)
-                      
-                     
+                      console.log(res.positionMillis,res.durationMillis);
                     }else{
                  
                         setAudioCurrentStatus({currentDuration:res.positionMillis/1000,totalDuration:res.durationMillis/1000})
@@ -143,12 +142,13 @@ const MiniAudioBox = () => {
 
     //handle seek audio in slider
      let syncWithAudio=async (syncPosition)=>{
-      console.log("syncWithAudio",syncPosition);
+      console.log("syncWithAudio",(audioCurrentStatus.totalDuration*1000)*syncPosition,audioCurrentStatus.totalDuration*1000);
       if(!isplaying){
         setIsPlaying(true)
       }
+  
         await soundx.current.setPositionAsync((audioCurrentStatus.totalDuration*1000)*syncPosition)
-     
+    
      }
 
         //play Auido
@@ -194,7 +194,7 @@ const MiniAudioBox = () => {
 
   return (
     <View style={{backgroundColor:"black",height:Dimensions.get("window").height*.1,width:Dimensions.get("window").width}}>
- <AudioPlayer isFav={isFav} setAudioAsFav={setAudioAsFav} deleteAudioAsFav={deleteAudioAsFav} playOnceFunc={handlePlayOnec} suffleFunc={handleSuffle} loopAllFunc={handleLoopAll} singleLoopFunc={handleSingleLoop} playPreFuc={playPrevious} handleSeek={syncWithAudio} modalFuc={handleModal} isModalShow={showModal} playFuc={playSound} pauseFuc={pauseSound} audioUpdateStatus={audioCurrentStatus} playNextFunc={playNext} isPlaying={isplaying} audioTitle={currentAudioObj.filename}></AudioPlayer>
+ <AudioPlayer  isFav={isFav} setAudioAsFav={setAudioAsFav} deleteAudioAsFav={deleteAudioAsFav} playOnceFunc={handlePlayOnec} suffleFunc={handleSuffle} loopAllFunc={handleLoopAll} singleLoopFunc={handleSingleLoop} playPreFuc={playPrevious} handleSeek={syncWithAudio} modalFuc={handleModal} isModalShow={showModal} playFuc={playSound} pauseFuc={pauseSound} audioUpdateStatus={audioCurrentStatus} playNextFunc={playNext} isPlaying={isplaying} audioTitle={currentAudioObj.filename}></AudioPlayer>
         <View>
        {audioCurrentStatus.currentDuration>0 &&  <Progress.Bar progress={audioCurrentStatus.currentDuration/audioCurrentStatus.totalDuration}  color={"black"} unfilledColor={"white"} width={Dimensions.get("window").width} height={1} />}
         </View>

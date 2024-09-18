@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View,Image, Pressable, Dimensions } from 'react-native'
+import { StyleSheet, Text, View,Image, Pressable, Dimensions, TouchableOpacity } from 'react-native'
 import React, { useEffect,useRef } from 'react'
 import musicLogo from "../assets/music.png"
 import threeDotsIcon from "../assets/threeDots.png"
@@ -8,7 +8,6 @@ import loveRedIcon from "../assets/love-red.png"
 import addListIcon from "../assets/add-list.png"
 import removeIcon from "../assets/remove.png"
 import playNextIcon from "../assets/play-next.png"
-import pauseIcon from "../assets/pause-w.png"
 import RBSheet from 'react-native-raw-bottom-sheet';
 import { useMusicProvider } from '../context/musicProvider'
 const AudioSingleList = ({audioTitle,audioUri,audioId,handleTitleSelect,indexOfAudioFiles}) => {
@@ -27,13 +26,13 @@ console.log("indexOfAudioFiles",indexOfAudioFiles);
 
             <View style={{width:"70%",marginLeft:"3%"}} >
                <Pressable onPress={()=>handleTitleSelect(audioId,audioUri,audioTitle,indexOfAudioFiles)}>
-               <Text  numberOfLines={1} style={{color:"white"}}> {audioTitle}</Text>
+               <Text  numberOfLines={1} style={{color:"white"}}>{audioTitle}</Text>
                </Pressable>
             </View>
             <View style={{marginLeft:"3%"}}>
-                <Pressable onPress={()=>refRBSheet.current.open()}>
+                <TouchableOpacity onPress={()=>refRBSheet.current.open()}>
                   <Image source={threeDotsIcon}/>
-                </Pressable>
+                </TouchableOpacity>
             </View>
 
             <RBSheet
@@ -66,25 +65,26 @@ console.log("indexOfAudioFiles",indexOfAudioFiles);
         }}>
           <View style={{padding:5}}>
               <Text numberOfLines={1} style={{fontSize:20,color:"white",textAlign:"center"}}>{audioTitle}</Text>
-              <View style={{display:"flex",justifyContent:"space-around",alignItems:"center",flexDirection:"row",marginTop:"5%"}}>
-                  <Pressable onPress={()=>handleTitleSelect(audioId,audioUri,audioTitle,indexOfAudioFiles)} style={{display:"flex",justifyContent:"center",alignItems:"center"}} >
-                      <Image source={playIcon}/>
+              <View  style={{display:"flex",justifyContent:"space-around",alignItems:"center",flexDirection:"row",marginTop:"5%"}}>
+                  <Pressable style={{display:"flex",justifyContent:"center",alignItems:"center"}} >
+                      <TouchableOpacity onPressOut={()=>refRBSheet.current.close()} onPress={()=>handleTitleSelect(audioId,audioUri,audioTitle,indexOfAudioFiles)} ><Image  source={playIcon}/></TouchableOpacity>
                       <Text style={{fontSize:15,color:"white"}}>Play</Text>
                   </Pressable>
-                  <Pressable onPress={isFav?deleteAudioAsFav:setAudioAsFav} style={{display:"flex",justifyContent:"center",alignItems:"center"}}>
-                      <Image source={isFav?loveRedIcon:loveIcon}/>
+                  <Pressable style={{display:"flex",justifyContent:"center",alignItems:"center"}}>
+                     <TouchableOpacity onPressOut={()=>refRBSheet.current.close()} onPress={isFav?deleteAudioAsFav:setAudioAsFav} ><Image source={isFav?loveRedIcon:loveIcon}/></TouchableOpacity>
                       <Text style={{fontSize:15,color:"white"}}>Favourite</Text>
                   </Pressable>
-                  <Pressable onPress={()=>handleAddAudioToImmediateNextOfTheAudioQueue(audioId)} style={{display:"flex",justifyContent:"center",alignItems:"center"}}>
-                      <Image source={playNextIcon}/>
+                  <Pressable style={{display:"flex",justifyContent:"center",alignItems:"center"}}>
+                      <TouchableOpacity onPressOut={()=>refRBSheet.current.close()} onPress={()=>handleAddAudioToImmediateNextOfTheAudioQueue(audioId)} ><Image source={playNextIcon}/></TouchableOpacity>
                       <Text style={{fontSize:15,color:"white"}}>Play Next</Text>
                   </Pressable >
                   <Pressable style={{display:"flex",justifyContent:"center",alignItems:"center"}}>
-                      <Image source={addListIcon}/>
+                      <TouchableOpacity onPressOut={()=>refRBSheet.current.close()}><Image source={addListIcon}/></TouchableOpacity>
                       <Text style={{fontSize:15,color:"white"}}>PlayList</Text>
                   </Pressable>
-                  <Pressable onPress={()=>removeAudioFromQueue(audioId)} style={{display:"flex",justifyContent:"center",alignItems:"center"}}>
-                      <Image source={removeIcon}/>
+                  <Pressable  style={{display:"flex",justifyContent:"center",alignItems:"center"}}>
+                        <TouchableOpacity onPressOut={()=>refRBSheet.current.close()} onPress={()=>removeAudioFromQueue(audioId)} ><Image source={removeIcon}/></TouchableOpacity>
+                        
                       <Text style={{fontSize:15,color:"white"}}>Remove</Text>
                   </Pressable>
               </View>

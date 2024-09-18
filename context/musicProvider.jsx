@@ -87,6 +87,8 @@ let MusicProvider=({children})=> {
               }
             })
           
+            }else{
+              setAllAudioFiles([])
             }
         
         })

@@ -25,6 +25,7 @@ const _layout = () => {
               
             }} >
               <Tabs.Screen name='index' options={{headerShown:false}} />
+              <Tabs.Screen name='(library)' options={{headerShown:false}} />
             </Tabs>
  
             </View>

@@ -116,6 +116,7 @@ const AudioPlayer = ({isModalShow,modalFuc,audioTitle,audioUpdateStatus,playFuc,
                             minimumTrackTintColor="#35555f"
                             maximumTrackTintColor="#c1beb9"
                             value={audioUpdateStatus.currentDuration==0?0:audioUpdateStatus.currentDuration/audioUpdateStatus.totalDuration}
+                    
                         />
                         <View style={{display:"flex",justifyContent:"space-between",alignItems:"center",flexDirection:"row"}}>
                             <Text style={{color:"white"}}>{handleDurationFormat(audioUpdateStatus.currentDuration)}</Text>
