@@ -1,5 +1,5 @@
-import { StyleSheet, Text, View,Image, Pressable, Dimensions, TouchableOpacity } from 'react-native'
-import React, { useEffect,useRef } from 'react'
+import { StyleSheet, Text, View,Image, Pressable, Dimensions, TouchableOpacity, ToastAndroid } from 'react-native'
+import React, { useEffect,useRef, useState } from 'react'
 import musicLogo from "../assets/music.png"
 import threeDotsIcon from "../assets/threeDots.png"
 import playIcon from "../assets/play-w.png"
@@ -11,13 +11,41 @@ import playNextIcon from "../assets/play-next.png"
 import RBSheet from 'react-native-raw-bottom-sheet';
 import { useMusicProvider } from '../context/musicProvider'
 import { router } from 'expo-router'
+import AsyncStorage from '@react-native-async-storage/async-storage'
+import useDeleteFav from '../hooks/useDeleteFav'
+import useSetAsFav from '../hooks/useSetAsFav'
 const AudioSingleList = ({audioTitle,audioUri,audioId,handleTitleSelect,indexOfAudioFiles,isPlayingFromPlaylist,playListAudioQueue,playListId,handleRefreshPlaylsit}) => {
-  let {setAudioAsFav,deleteAudioAsFav,isFav,handleAddAudioToImmediateNextOfTheAudioQueue,removeAudioFromQueue,handleRemoveAudioFromPlaylsit}=useMusicProvider()
+  let {handleAddAudioToImmediateNextOfTheAudioQueue,removeAudioFromQueue,handleRemoveAudioFromPlaylsit,currentAudioFile}=useMusicProvider()
+  let [isFav,setIsFav]=useState(false)
   const refRBSheet = useRef();
   useEffect(()=>{
 console.log("indexOfAudioFiles",indexOfAudioFiles);
   
   },[indexOfAudioFiles])
+      // checking if this song is favourite or note
+      useEffect(()=>{
+        AsyncStorage.getItem("favArray").then((res)=>{
+          console.log("Fav Array in useffect to get all audio id",JSON.parse(res));
+          let paredArray=JSON.parse(res)
+          paredArray.map((sig)=>{
+            console.log("sig",sig);
+           if (sig==audioId) {
+            setIsFav(true)
+           }
+          })
+        })
+      },[])
+      let setAudioAsFav=()=>{
+        setIsFav(true)
+        useSetAsFav(audioId)
+        ToastAndroid.show("Favourite",ToastAndroid.SHORT)
+      }
+
+      let deleteAudioAsFav=()=>{
+        setIsFav(false)
+        useDeleteFav(audioId)
+        ToastAndroid.show("Unfavourite",ToastAndroid.SHORT)
+      }
   return (
     <View style={styles.audioSingleListWrapper}>
          
@@ -27,7 +55,7 @@ console.log("indexOfAudioFiles",indexOfAudioFiles);
 
             <View style={{width:"70%",marginLeft:"3%"}} >
                <Pressable onPress={()=>isPlayingFromPlaylist==true?handleTitleSelect(playListAudioQueue,playListId,audioId,audioUri,audioTitle,indexOfAudioFiles):handleTitleSelect(audioId,audioUri,audioTitle,indexOfAudioFiles)}>
-               <Text  numberOfLines={1} style={{color:"white"}}>{audioTitle}</Text>
+               <Text  numberOfLines={1} style={{color:currentAudioFile.id==audioId?"#08a9ee":"white",fontWeight:currentAudioFile.id==audioId?"900":"black"}}>{audioTitle}</Text>
                </Pressable>
             </View>
             <View style={{marginLeft:"3%"}}>
@@ -103,7 +131,7 @@ export default AudioSingleList;
 
 const styles = StyleSheet.create({
     audioSingleListWrapper:{
-        width:"100%",
+        width:Dimensions.get("window").width,
         backgroundColor:"black",
         color:"white",
         fontWeight:"300",

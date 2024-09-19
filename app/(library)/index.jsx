@@ -1,4 +1,4 @@
-import { ScrollView, StyleSheet, Text, TouchableOpacity, View ,Image} from 'react-native'
+import { ScrollView, StyleSheet, Text, TouchableOpacity, View ,Image, Dimensions} from 'react-native'
 import React, { useEffect, useState } from 'react'
 import addPlayListIcon from "../../assets/add-playlist.png"
 import musicLogo from "../../assets/music.png"
@@ -6,6 +6,9 @@ import loveRedIcon from "../../assets/love-red.png"
 import { router } from 'expo-router'
 import CreatePlayList from '../../components/createPlaylist'
 import { useCreatePlaylist, useGetAllPlayLists } from '../../hooks/usePlayList'
+import CustomScreenTitle from '../../components/customScreenTitle'
+import CustomLibraryBtn from '../../components/customLibraryBtn'
+import activeLogo from "../../assets/active.png"
 const Index = () => {
     let [isShowModal,setIsShowModal]=useState(false)
     let [allPlayLists,setAllPlaylists]=useState([])
@@ -28,39 +31,49 @@ const Index = () => {
     }
 
   return (
-    <>
+    <View style={{height:Dimensions.get("window").height,backgroundColor:"black"}}>
+        <CustomScreenTitle title={"Library"}/>
         <ScrollView>
-            <View>
-                <TouchableOpacity onPress={handleModal} >
+            <View style={styles.libraryWrapper}>
+                <TouchableOpacity style={styles.createPlayListBtn} onPress={handleModal} >
                     <Image source={addPlayListIcon}/>
-                    <Text>Create new PlayList</Text>
+                    <Text style={{color:"white",fontSize:17,fontWeight:"bold",marginLeft:"2%"}}>Create New PlayList</Text>
                 </TouchableOpacity>
-                <TouchableOpacity onPress={()=>router.push("/favourite")}>
-                    <Image source={loveRedIcon}/>
-                    <Text>Favourites</Text>
-                </TouchableOpacity>
+                <CustomLibraryBtn btnName={"Favourite Songs"} href={'favourite'} icon={loveRedIcon}/>
                 {allPlayLists.map((sig,index)=>{
                     return(
-                        <TouchableOpacity key={index} onPress={()=>router.push(`/${sig.id}`)}>
-                            <Image source={musicLogo}/>
-                            <Text>{sig.name}</Text>
-                        </TouchableOpacity>
+                        <CustomLibraryBtn btnName={sig.name} icon={musicLogo} href={sig.id}/>
                     )
                 })}
-                <TouchableOpacity>
-                <TouchableOpacity onPress={()=>router.push("/queue")}>
-                    <Image source={loveRedIcon}/>
-                    <Text>Current Queue</Text>
-                </TouchableOpacity>
-                </TouchableOpacity>
+              <CustomLibraryBtn btnName={"Current Audio Queue"} icon={activeLogo} href={"queue"}/>
             </View>
             <CreatePlayList modalShow={isShowModal} handleModal={handleModal} handleCreatePlayList={handleCreatePlayList}  ></CreatePlayList>
         </ScrollView>
      
-    </>
+    </View>
   )
 }
 
 export default Index;
 
-const styles = StyleSheet.create({})
+const styles = StyleSheet.create({
+    createPlayListBtn:{
+        display:"flex",
+        justifyContent:"flex-start",
+        alignItems:"center",
+        height:Dimensions.get("window").height*.1,
+        flexDirection:"row",
+        width:Dimensions.get("window").width*.9,
+        backgroundColor:"#222221",
+        padding:7,
+        borderRadius:9,
+        margin:3
+    },
+    libraryWrapper:{
+        display:"flex",
+        justifyContent:"center",
+        alignItems:"center",
+        marginTop:"3%"
+    
+    }
+})

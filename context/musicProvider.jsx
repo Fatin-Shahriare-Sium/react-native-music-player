@@ -39,7 +39,7 @@ let MusicProvider=({children})=> {
     const soundx =useRef(new Audio.Sound());
     
     let handleAudioSelect=async (audioId,audioUri,audioTitle,index)=>{
-      setIsPlaying(true)
+    
       setIsPlayingPlaylist(false)
       if(isPlayingPlaylist==true){
         setAudioQueue([...allAudioFiles])
@@ -61,7 +61,7 @@ let MusicProvider=({children})=> {
     //handle audio play when user plays from playlist
 
     let handleAudioSelectFromPlaylist=async (playListAudioArray,playListId,audioId,audioUri,audioTitle,index)=>{
-      setIsPlaying(true)
+    
        setIsPlayingPlaylist(true)
    
       if(soundx.current._loaded==true){
@@ -154,21 +154,6 @@ let MusicProvider=({children})=> {
 
 
       useEffect(()=>{
-    
-        AsyncStorage.getItem("favArray").then((res)=>{
-          console.log("Fav Array in useffect to get all audio id",JSON.parse(res));
-          let paredArray=JSON.parse(res)
-          paredArray.map((sig)=>{
-            console.log("sig",sig);
-           if (sig==currentAudioFile.id) {
-            console.log("matched",sig,currentAudioFile.id);
-            setIsFav(true)
-           }
-          })
-        })
-      },[currentAudioFile])
-
-      useEffect(()=>{
         useGetAudioCommand().then((res)=>{
           console.log("res in MUSIC PROVIDER",res);
           if(res.willLoopAllAudio){
@@ -190,9 +175,7 @@ let MusicProvider=({children})=> {
     },[])
 
 
-      let handlePlayAudio=(boolean)=>{
-        setIsPlaying(boolean);
-      }
+
       
 
            //single song loop
@@ -240,19 +223,7 @@ let MusicProvider=({children})=> {
 
       }
 
-      //hanlde to set audio as favourite
-    
-      let setAudioAsFav=()=>{
-        setIsFav(true)
-        useSetAsFav(currentAudioFile.id)
-        ToastAndroid.show("Favourite",ToastAndroid.SHORT)
-      }
 
-      let deleteAudioAsFav=()=>{
-        setIsFav(false)
-        useDeleteFav(currentAudioFile.id)
-        ToastAndroid.show("Unfavourite",ToastAndroid.SHORT)
-      }
 
       
 // handleing audio to next in queue
@@ -303,7 +274,7 @@ let MusicProvider=({children})=> {
     }
 
   return (
-   <GloblaMusicProvider.Provider value={{allAudioFiles,audioQueue,setAudioAsFav,deleteAudioAsFav,isFav,currentAudioFile,handleAudioSelect,handleAudioSelectFromPlaylist,isplaying,willSuffle,setIsPlaying:handlePlayAudio,handleSuffle,soundx,handleSingleLoop,isLoopingAll,handleLoopAll,handlePlayOnec,handleAddAudioToImmediateNextOfTheAudioQueue,removeAudioFromQueue,handleRemoveAudioFromPlaylsit}} >
+   <GloblaMusicProvider.Provider value={{allAudioFiles,audioQueue,currentAudioFile,handleAudioSelect,handleAudioSelectFromPlaylist,isplaying,willSuffle,handleSuffle,soundx,handleSingleLoop,isLoopingAll,handleLoopAll,handlePlayOnec,handleAddAudioToImmediateNextOfTheAudioQueue,removeAudioFromQueue,handleRemoveAudioFromPlaylsit}} >
     {/* <Pressable onPress={()=>getAudioFiles()}>
         <Text>Check</Text>
     </Pressable> */}

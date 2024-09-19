@@ -11,8 +11,11 @@ import AudioPlayer from './audioPlayer'
 import { useMusicProvider } from '../context/musicProvider'
 import useUpdateCurrentAudioFile from '../hooks/useUpdateCurrentAudioFile'
 import useStoreCurrentAudioFile from '../hooks/useStoreCurrentAudioFile'
+import useSetAsFav from '../hooks/useSetAsFav'
+import useDeleteFav from '../hooks/useDeleteFav'
+import AsyncStorage from '@react-native-async-storage/async-storage'
 const MiniAudioBox = () => {
-  let {currentAudioFile,audioQueue,isplaying,setIsPlaying,willSuffle,isLoopSingle,isLoopingAll,handlePlayOnec,handleSuffle,soundx,handleSingleLoop,handleLoopAll,isFav,setAudioAsFav,deleteAudioAsFav}=useMusicProvider()
+  let {currentAudioFile,audioQueue,willSuffle,isLoopSingle,isLoopingAll,handlePlayOnec,handleSuffle,soundx,handleSingleLoop,handleLoopAll}=useMusicProvider()
   let audioUri=currentAudioFile.uri
   let audioTitle=currentAudioFile.title
   let audioId=currentAudioFile.id
@@ -24,8 +27,8 @@ const MiniAudioBox = () => {
     let [currentAudioQueue,setCurrentAudioQueue]=useState([...audioQueue])
     let [currentAudioObj,setCurrentAudioObj]=useState({index:audioIndex,uri:audioUri,filename:audioTitle,audioId:audioId})
     let [audioHasRecentlyFinisedCalledTimes,setAudioHasRecentlyFinishedCalledTimes]=useState(0)
-    
-
+    let [isFav,setIsFav]=useState(false)
+    let [isplaying,setIsPlaying]=useState(false)
     //hanlde audioplayer modal
      let handleModal=()=>{
       return setShowModal(!showModal)
@@ -37,6 +40,29 @@ const MiniAudioBox = () => {
       // console.log("audio queue in miniAudioBox",audioQueue);
       setCurrentAudioQueue([...audioQueue])
     },[audioQueue])
+    // checking if this song is favourite or note
+    useEffect(()=>{
+      AsyncStorage.getItem("favArray").then((res)=>{
+        setIsFav(false)
+        console.log("Fav Array in useffect to get all audio id",JSON.parse(res));
+        console.log("match to fav",currentAudioObj.audioId);
+        let parsedArray=JSON.parse(res)
+        parsedArray.map((sig)=>{
+         if (sig==currentAudioObj.audioId) {
+          return setIsFav(true)
+         }
+        })
+      })
+    },[currentAudioObj])
+
+    useEffect(()=>{
+      soundx.current.getStatusAsync().then((res)=>{
+        if(res.isPlaying==true){
+          setIsPlaying(true)
+        }
+      })
+    },[currentAudioFile])
+
 
 
  //PLAY next Audio
@@ -174,10 +200,23 @@ const MiniAudioBox = () => {
       ToastAndroid.show('Previous Song', ToastAndroid.SHORT);  
     }
 
+          //hanlde to set audio as favourite
+    
+          let setAudioAsFav=()=>{
+            setIsFav(true)
+            useSetAsFav(currentAudioFile.id)
+            ToastAndroid.show("Favourite",ToastAndroid.SHORT)
+          }
+  
+          let deleteAudioAsFav=()=>{
+            setIsFav(false)
+            useDeleteFav(currentAudioFile.id)
+            ToastAndroid.show("Unfavourite",ToastAndroid.SHORT)
+          }
  
 
   return (
-    <View style={{backgroundColor:"black",height:Dimensions.get("window").height*.1,width:Dimensions.get("window").width}}>
+    <View style={{backgroundColor:"#222221",height:Dimensions.get("window").height*.1,width:Dimensions.get("window").width}}>
  <AudioPlayer  isFav={isFav} setAudioAsFav={setAudioAsFav} deleteAudioAsFav={deleteAudioAsFav} playOnceFunc={handlePlayOnec} suffleFunc={handleSuffle} loopAllFunc={handleLoopAll} singleLoopFunc={handleSingleLoop} playPreFuc={playPrevious} handleSeek={syncWithAudio} modalFuc={handleModal} isModalShow={showModal} playFuc={playSound} pauseFuc={pauseSound} audioUpdateStatus={audioCurrentStatus} playNextFunc={playNext} isPlaying={isplaying} audioTitle={currentAudioObj.filename}></AudioPlayer>
         <View>
        {audioCurrentStatus.currentDuration>0 &&  <Progress.Bar progress={audioCurrentStatus.currentDuration/audioCurrentStatus.totalDuration}  color={"black"} unfilledColor={"white"} width={Dimensions.get("window").width} height={1} />}

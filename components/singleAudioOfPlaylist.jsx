@@ -16,7 +16,7 @@ const SingleAudioOfPlaylist = ({audioTitle,audioId,handleAddBtn}) => {
             </Pressable>
             </View>
             <View style={{marginLeft:"3%"}}>
-                <TouchableOpacity onPress={()=>{handleAddBtn(audioId)}}>
+                <TouchableOpacity onPress={()=>handleAddBtn(audioId)}>
                 <Image source={addLogo}/>
                 </TouchableOpacity>
             </View>

@@ -42,8 +42,8 @@ const styles = StyleSheet.create({
         width:Dimensions.get("window").width*.7,
         backgroundColor:"black",
         padding:20,
-        borderRadius:10
+        borderRadius:10,
+        bottom:"10%"
      
-
     }
 })

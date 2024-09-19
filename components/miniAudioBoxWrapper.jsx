@@ -16,9 +16,6 @@ export default MiniAudioBoxWrapper;
 
 const styles = StyleSheet.create({
     miniAudioBoxWrapper:{
-
-        zIndex:7,
-        marginBottom:"2%"
-      
+    zIndex:7,
     }
 })
