@@ -20,7 +20,7 @@ const AddPlayListModal = ({audioId}) => {
         ToastAndroid.show(`This audio is added to ${playListName} `,ToastAndroid.SHORT)
     }
   return (
-    <Modal visible={true}>
+    <Modal onRequestClose={()=>router.push('/')} visible={true}>
         <View style={{backgroundColor:"red"}}>
             <Text>AWHBDIUA</Text>
             <FlatList
@@ -29,7 +29,7 @@ const AddPlayListModal = ({audioId}) => {
              keyExtractor={(item) => item.id}
            renderItem={(sig)=>{
             return(
-                <TouchableOpacity onPressOut={()=>router.push("../../../")} onPress={()=>{handleAddAudioToPlayList(sig.item.id,sig.item.name,audioId)}}>
+                <TouchableOpacity onPressOut={()=>router.push("/")} onPress={()=>{handleAddAudioToPlayList(sig.item.id,sig.item.name,audioId)}}>
                     <Image source={musicLogo}/>
                     <Text>{sig.item.name}</Text>
                 </TouchableOpacity>

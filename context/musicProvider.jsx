@@ -39,9 +39,11 @@ let MusicProvider=({children})=> {
     const soundx =useRef(new Audio.Sound());
     
     let handleAudioSelect=async (audioId,audioUri,audioTitle,index)=>{
-      console.log("handleAudioIndex in indexjs",index);
       setIsPlaying(true)
       setIsPlayingPlaylist(false)
+      if(isPlayingPlaylist==true){
+        setAudioQueue([...allAudioFiles])
+      }
       if(soundx.current._loaded==true){
         await soundx.current.pauseAsync()
         await soundx.current.unloadAsync()
@@ -61,6 +63,7 @@ let MusicProvider=({children})=> {
     let handleAudioSelectFromPlaylist=async (playListAudioArray,playListId,audioId,audioUri,audioTitle,index)=>{
       setIsPlaying(true)
        setIsPlayingPlaylist(true)
+   
       if(soundx.current._loaded==true){
         await soundx.current.pauseAsync()
         await soundx.current.unloadAsync()
@@ -95,11 +98,9 @@ let MusicProvider=({children})=> {
       }
 
       useEffect(()=>{
-       // AsyncStorage.removeItem("allPlaylists")
         AsyncStorage.getItem("AllAudioFiles").then((res)=>{
             if(res){
               let allAudioFilesParsed=JSON.parse(res)
-            // console.log("allfiles",allAudioFilesParsed);
             setAllAudioFiles([...allAudioFilesParsed].slice(0,30))
            
             }else{
@@ -111,10 +112,8 @@ let MusicProvider=({children})=> {
       },[])
       useEffect(()=>{
         AsyncStorage.getItem("currentAudioFile").then((res)=>{
-          console.log("currentAudioFile from local storage",res);
           if(res!==null){
           let currentAudioObjParsed=JSON.parse(res)
-          console.log("currentAudioObjParsed",currentAudioObjParsed);
           setIsFav(false)
           soundx.current.loadAsync({uri:currentAudioObjParsed.uri},{shouldPlay:false,isLooping:isLoopSingle,positionMillis:currentAudioObjParsed.activeDuration*1000})
           setCurrentAudioFile(currentAudioObjParsed)
@@ -140,8 +139,6 @@ let MusicProvider=({children})=> {
          }else{
           setIsPlayingPlaylist(false)
           useGetAudioQueue().then((res)=>{
-            console.log("all audio queue",res);
-            
             if(res.length==0){
               setAudioQueue([...allAudioFiles].slice(0,30))
             }else{
@@ -153,11 +150,8 @@ let MusicProvider=({children})=> {
        })
        
        
-      },[isPlayingPlaylist,allAudioFiles])
-      useEffect(()=>{
-        console.log("audiomain queue in music provider",audioQueue);
-        
-      },[audioQueue])
+      },[allAudioFiles])
+
 
       useEffect(()=>{
     

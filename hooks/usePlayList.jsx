@@ -45,6 +45,9 @@ export let useGetAllPlayLists=async ()=>{
 }
 
 export let useAddAudioToPlaylist=async(playlistId,audioObj)=>{
+    if(audioObj==null){
+        throw Error;
+    }
     let result=await AsyncStorage.getItem("allPlaylists")
     let filterdArray=JSON.parse(result).filter((sig)=>sig.id==playlistId)
     let withoutFilterArray=JSON.parse(result).filter((sig)=>sig.id!==playlistId)

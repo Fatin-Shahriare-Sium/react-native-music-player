@@ -5,7 +5,7 @@ import searchIcon from "../assets/search.png"
 import SingleAudioOfPlaylist from './singleAudioOfPlaylist'
 const AddAudioInPlaylist = ({handleAddAudioToPlaylist}) => {
     let {allAudioFiles}=useMusicProvider()
-    let [seachedAudio,setSearchedAudio]=useState([])
+    let [seachedAudio,setSearchedAudio]=useState(allAudioFiles)
     let handleSearchBar=(text)=>{
         console.log(allAudioFiles);
         

@@ -44,13 +44,15 @@ const MiniAudioBox = () => {
         let randomIndex=Math.floor(Math.random()*currentAudioQueue.length)
        
           let changeCurrentAudioObj=currentAudioQueue[willSuffle?randomIndex:currentAudioObj.index+1]
+          console.log("changeCurrentAudioObj= in playnext func",changeCurrentAudioObj);
+          let indexOfQueue=currentAudioObj.index+1;
           if(!changeCurrentAudioObj){
             changeCurrentAudioObj=currentAudioQueue[0]
+            indexOfQueue=0
           }
-          console.log("currentAudioQueue[audioIndex+1].uri",currentAudioQueue);
-          setCurrentAudioObj({index:currentAudioObj.index+1,uri:changeCurrentAudioObj.uri,filename:changeCurrentAudioObj.filename,audioId:changeCurrentAudioObj.id})
+          setCurrentAudioObj({index:indexOfQueue,uri:changeCurrentAudioObj.uri,filename:changeCurrentAudioObj.filename,audioId:changeCurrentAudioObj.id})
          //updating currentAudioFile in storage when next song play
-          useStoreCurrentAudioFile({title:changeCurrentAudioObj.filename,uri:changeCurrentAudioObj.uri,id:changeCurrentAudioObj.id,index:currentAudioObj.index+1,activeDuration:0,totalDuration:0})
+          useStoreCurrentAudioFile({title:changeCurrentAudioObj.filename,uri:changeCurrentAudioObj.uri,id:changeCurrentAudioObj.id,index:indexOfQueue,activeDuration:0,totalDuration:0})
           if(soundx.current._loaded==true){
             await soundx.current.pauseAsync()
             await soundx.current.unloadAsync();
@@ -96,9 +98,9 @@ const MiniAudioBox = () => {
         return ()=>{clearInterval(intervalRef.current)}
       },[isplaying])
 
-
+//setting which will happens (suffle,loopall,one loop) after audio has finished
     useEffect(()=>{
-      console.log("audioHasRecentlyFinisedCalledTimes",audioHasRecentlyFinisedCalledTimes);
+      console.log("audioHasRecentlyFinisedCalledTimes",audioHasRecentlyFinisedCalledTimes,isLoopingAll);
       if(audioHasRecentlyFinisedCalledTimes==1 && willSuffle==true){
         console.log("wil shuffle checking",willSuffle);
        playNext()
@@ -109,24 +111,6 @@ const MiniAudioBox = () => {
       }
     },[audioHasRecentlyFinisedCalledTimes])
 
-      //handle set audio when user click audioSingelList
-      let handleAudioSelect=async (audioId,audioUri,audioTitle,audioIndex,activeDuration,totalDuration)=>{
-        console.log("setect audio uri",audioUri);
-        console.log("soundx.current._loaded",soundx.current._loaded);
-        console.log("handle set audio when user click audioSingelList",audioIndex,audioUri);
-        
-        if(soundx.current._loaded==true){
-          await soundx.current.pauseAsync()
-          await soundx.current.unloadAsync()
-          await soundx.current.loadAsync({uri:audioUri},{isLooping:isLoopSingle,shouldPlay:isplaying,positionMillis:activeDuration*1000});
-        }else{
-         await soundx.current.loadAsync({uri:audioUri},{isLooping:isLoopSingle,shouldPlay:isplaying,positionMillis:activeDuration*1000});
-      
-        }
-
-        setCurrentAudioObj({uri:audioUri,index:audioIndex,filename:audioTitle,audioId})
-
- }
 
 
     useEffect(()=>{
@@ -134,14 +118,6 @@ const MiniAudioBox = () => {
       
     },[currentAudioObj])
   
-
-
-    useEffect(()=>{
-    
-    },[])
-
-    //sync the duration and seekbar when audio pasue
-
 
     //handle seek audio in slider
      let syncWithAudio=async (syncPosition)=>{
@@ -177,10 +153,15 @@ const MiniAudioBox = () => {
     let playPrevious=async()=>{
    
       let changeCurrentAudioObj=currentAudioQueue[currentAudioObj.index-1]
+      let indexOfQueue=currentAudioObj.index-1;
+      if(!changeCurrentAudioObj){
+        changeCurrentAudioObj=currentAudioQueue[0]
+        indexOfQueue=0
+      }
       console.log("currentAudioQueue[audioIndex+1].uri",changeCurrentAudioObj);
-      setCurrentAudioObj({index:currentAudioObj.index-1,uri:changeCurrentAudioObj.uri,filename:changeCurrentAudioObj.filename,audioId:changeCurrentAudioObj.id})
+      setCurrentAudioObj({index:indexOfQueue,uri:changeCurrentAudioObj.uri,filename:changeCurrentAudioObj.filename,audioId:changeCurrentAudioObj.id})
       //update stirage when previous button press
-      useStoreCurrentAudioFile({title:changeCurrentAudioObj.filename,uri:changeCurrentAudioObj.uri,id:changeCurrentAudioObj.id,index:currentAudioObj.index-1,activeDuration:0,totalDuration:0})
+      useStoreCurrentAudioFile({title:changeCurrentAudioObj.filename,uri:changeCurrentAudioObj.uri,id:changeCurrentAudioObj.id,index:indexOfQueue,activeDuration:0,totalDuration:0})
       if(soundx.current._loaded==true){
         await soundx.current.pauseAsync()
         await soundx.current.unloadAsync();

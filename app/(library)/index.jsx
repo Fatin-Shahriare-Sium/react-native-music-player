@@ -47,6 +47,12 @@ const Index = () => {
                         </TouchableOpacity>
                     )
                 })}
+                <TouchableOpacity>
+                <TouchableOpacity onPress={()=>router.push("/queue")}>
+                    <Image source={loveRedIcon}/>
+                    <Text>Current Queue</Text>
+                </TouchableOpacity>
+                </TouchableOpacity>
             </View>
             <CreatePlayList modalShow={isShowModal} handleModal={handleModal} handleCreatePlayList={handleCreatePlayList}  ></CreatePlayList>
         </ScrollView>
