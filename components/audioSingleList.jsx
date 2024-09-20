@@ -15,24 +15,36 @@ import AsyncStorage from '@react-native-async-storage/async-storage'
 import useDeleteFav from '../hooks/useDeleteFav'
 import useSetAsFav from '../hooks/useSetAsFav'
 const AudioSingleList = ({audioTitle,audioUri,audioId,handleTitleSelect,indexOfAudioFiles,isPlayingFromPlaylist,playListAudioQueue,playListId,handleRefreshPlaylsit}) => {
-  let {handleAddAudioToImmediateNextOfTheAudioQueue,removeAudioFromQueue,handleRemoveAudioFromPlaylsit,currentAudioFile}=useMusicProvider()
+  let {handleAddAudioToImmediateNextOfTheAudioQueue,removeAudioFromQueue,handleRemoveAudioFromPlaylsit,activeAudioId}=useMusicProvider()
   let [isFav,setIsFav]=useState(false)
+  let [isActive,setIsActive]=useState(false)
   const refRBSheet = useRef();
   useEffect(()=>{
 console.log("indexOfAudioFiles",indexOfAudioFiles);
   
   },[indexOfAudioFiles])
+
+  useEffect(()=>{
+    setIsActive(false)
+    if(activeAudioId==audioId){
+      return setIsActive(true)
+    }
+  },[activeAudioId])
+
+
       // checking if this song is favourite or note
       useEffect(()=>{
         AsyncStorage.getItem("favArray").then((res)=>{
           console.log("Fav Array in useffect to get all audio id",JSON.parse(res));
-          let paredArray=JSON.parse(res)
+          if(res){
+            let paredArray=JSON.parse(res)
           paredArray.map((sig)=>{
             console.log("sig",sig);
            if (sig==audioId) {
             setIsFav(true)
            }
           })
+          }
         })
       },[])
       let setAudioAsFav=()=>{
@@ -55,7 +67,7 @@ console.log("indexOfAudioFiles",indexOfAudioFiles);
 
             <View style={{width:"70%",marginLeft:"3%"}} >
                <Pressable onPress={()=>isPlayingFromPlaylist==true?handleTitleSelect(playListAudioQueue,playListId,audioId,audioUri,audioTitle,indexOfAudioFiles):handleTitleSelect(audioId,audioUri,audioTitle,indexOfAudioFiles)}>
-               <Text  numberOfLines={1} style={{color:currentAudioFile.id==audioId?"#08a9ee":"white",fontWeight:currentAudioFile.id==audioId?"900":"black"}}>{audioTitle}</Text>
+               <Text  numberOfLines={1} style={{color:isActive?"#08a9ee":"white",fontWeight:isActive?"900":"black"}}>{audioTitle}</Text>
                </Pressable>
             </View>
             <View style={{marginLeft:"3%"}}>
@@ -108,7 +120,7 @@ console.log("indexOfAudioFiles",indexOfAudioFiles);
                       <Text style={{fontSize:15,color:"white"}}>Play Next</Text>
                   </Pressable >
                   <Pressable style={{display:"flex",justifyContent:"center",alignItems:"center"}}>
-                      <TouchableOpacity onPressOut={()=>refRBSheet.current.close()} onPress={()=>router.push(`(AddAudioToPlayList)/${audioId}`)}><Image source={addListIcon}/></TouchableOpacity>
+                      <TouchableOpacity onPressOut={()=>refRBSheet.current.close()} onPress={()=>router.push(`AddAudioToPlayList/${audioId}`)}><Image source={addListIcon}/></TouchableOpacity>
                       <Text style={{fontSize:15,color:"white"}}>PlayList</Text>
                   </Pressable>
                   <Pressable  style={{display:"flex",justifyContent:"center",alignItems:"center"}}>

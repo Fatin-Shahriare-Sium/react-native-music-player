@@ -79,3 +79,20 @@ export let useSetPlayingPlaylistQueue=async(boolean,playlistId)=>{
     await AsyncStorage.removeItem("playListPlaying")
     await AsyncStorage.setItem("playListPlaying",JSON.stringify(playingPlayListDeterminer))
 }
+
+export let useDeletePlayList=async(playlistId)=>{
+    let result=await AsyncStorage.getItem("allPlaylists")
+    let filterdArray=JSON.parse(result).filter((sig)=>sig.id!==playlistId)
+    await AsyncStorage.removeItem("allPlaylists")
+    await AsyncStorage.setItem("allPlaylists",JSON.stringify(filterdArray))
+}
+
+export let useRenameThePlayList=async(playlistId,newName)=>{
+    let result=await AsyncStorage.getItem("allPlaylists")
+    let filterdArray=JSON.parse(result).filter((sig)=>sig.id==playlistId)
+    let withoutFilterArray=JSON.parse(result).filter((sig)=>sig.id!==playlistId)
+    filterdArray[0].name=newName
+    withoutFilterArray.push(filterdArray[0])
+    await AsyncStorage.removeItem("allPlaylists")
+    await AsyncStorage.setItem("allPlaylists",JSON.stringify(withoutFilterArray))
+}

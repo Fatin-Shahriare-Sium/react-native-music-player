@@ -4,21 +4,26 @@ import searchIcon from "../assets/search.png"
 import { useMusicProvider } from '../context/musicProvider'
 import AudioSingleList from '../components/audioSingleList'
 import CustomScreenTitle from '../components/customScreenTitle'
+import EmptyComponet from '../components/emptyComponent'
 
 
 const Serach = () => {
   let {allAudioFiles,handleAudioSelect}=useMusicProvider()
-  let [seachedAudio,setSearchedAudio]=useState(allAudioFiles)
+  let [seachedAudio,setSearchedAudio]=useState([])
   let handleSearchBar=(text)=>{
       console.log(allAudioFiles);
       
       let filteredArray=allAudioFiles.filter((sig)=>sig.filename.match(text))
       console.log("filter in search bar",filteredArray);
+      if(text==""){
+        setSearchedAudio([])
+      }else{
+        setSearchedAudio([...filteredArray])
+      }
       
-      setSearchedAudio([...filteredArray])
   }
   return (
-      <View style={{backgroundColor:"black"}}>
+      <View style={{backgroundColor:"black",height:Dimensions.get("window").height*.8}}>
         <CustomScreenTitle title={"Search"}/>
           <View style={{display:"flex",justifyContent:"center",alignItems:"center"}}>
                 <View style={styles.inputBoxWrapper}>
@@ -34,6 +39,7 @@ const Serach = () => {
                 keyExtractor={(item) => item.id}
               renderItem={(sig)=>{return (<AudioSingleList isPlayingFromPlaylist={false} playListId={''} handleRefreshPlaylsit={()=>{}} playListAudioQueue={[]} key={sig.index} audioTitle={sig.item.filename} indexOfAudioFiles={sig.index} audioId={sig.item.id} audioUri={sig.item.uri} handleTitleSelect={handleAudioSelect}></AudioSingleList>)}}
               refreshing={seachedAudio}
+              ListEmptyComponent={()=><EmptyComponet message={"Search Your Audios 🔍"}/>}
           />
         </ScrollView>
       </View>

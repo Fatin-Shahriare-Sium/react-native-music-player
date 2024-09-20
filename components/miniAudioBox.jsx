@@ -15,7 +15,7 @@ import useSetAsFav from '../hooks/useSetAsFav'
 import useDeleteFav from '../hooks/useDeleteFav'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 const MiniAudioBox = () => {
-  let {currentAudioFile,audioQueue,willSuffle,isLoopSingle,isLoopingAll,handlePlayOnec,handleSuffle,soundx,handleSingleLoop,handleLoopAll}=useMusicProvider()
+  let {currentAudioFile,audioQueue,willSuffle,isLoopSingle,isLoopingAll,handlePlayOnec,handleSuffle,soundx,handleSingleLoop,handleLoopAll,isPlayingPlaylist,setActiveAudioId}=useMusicProvider()
   let audioUri=currentAudioFile.uri
   let audioTitle=currentAudioFile.title
   let audioId=currentAudioFile.id
@@ -44,40 +44,50 @@ const MiniAudioBox = () => {
     useEffect(()=>{
       AsyncStorage.getItem("favArray").then((res)=>{
         setIsFav(false)
-        console.log("Fav Array in useffect to get all audio id",JSON.parse(res));
-        console.log("match to fav",currentAudioObj.audioId);
-        let parsedArray=JSON.parse(res)
-        parsedArray.map((sig)=>{
-         if (sig==currentAudioObj.audioId) {
-          return setIsFav(true)
-         }
-        })
+        if(res){
+          let parsedArray=JSON.parse(res)
+          parsedArray.map((sig)=>{
+           if (sig==currentAudioObj.audioId) {
+            return setIsFav(true)
+           }
+          })
+        }
+      
+        
       })
     },[currentAudioObj])
 
     useEffect(()=>{
       soundx.current.getStatusAsync().then((res)=>{
         if(res.isPlaying==true){
-          setIsPlaying(true)
+          return setIsPlaying(true)
+        }else{
+          return setIsPlaying(false)
         }
       })
-    },[currentAudioFile])
+    },[currentAudioFile,isPlayingPlaylist])
 
 
 
  //PLAY next Audio
         let playNext=async()=>{
         let randomIndex=Math.floor(Math.random()*currentAudioQueue.length)
-       
+        console.log("changeCurrentAudioObj= in playnext func",currentAudioObj);
           let changeCurrentAudioObj=currentAudioQueue[willSuffle?randomIndex:currentAudioObj.index+1]
-          console.log("changeCurrentAudioObj= in playnext func",changeCurrentAudioObj);
+          
           let indexOfQueue=currentAudioObj.index+1;
           if(!changeCurrentAudioObj){
+            
+            
             changeCurrentAudioObj=currentAudioQueue[0]
             indexOfQueue=0
+            
           }
+          setActiveAudioId(changeCurrentAudioObj.id)
+          //console.log("not getting changeCurrentAudioObj",indexOfQueue);
           setCurrentAudioObj({index:indexOfQueue,uri:changeCurrentAudioObj.uri,filename:changeCurrentAudioObj.filename,audioId:changeCurrentAudioObj.id})
-         //updating currentAudioFile in storage when next song play
+          
+          //updating currentAudioFile in storage when next song play
           useStoreCurrentAudioFile({title:changeCurrentAudioObj.filename,uri:changeCurrentAudioObj.uri,id:changeCurrentAudioObj.id,index:indexOfQueue,activeDuration:0,totalDuration:0})
           if(soundx.current._loaded==true){
             await soundx.current.pauseAsync()
@@ -158,7 +168,6 @@ const MiniAudioBox = () => {
 
         //play Auido
       async function playSound() {
-
        await soundx.current.playAsync()
        setIsPlaying(true)
        ToastAndroid.show('Play Song', ToastAndroid.SHORT);
@@ -177,16 +186,17 @@ const MiniAudioBox = () => {
 
     //play Audio Prevoius
     let playPrevious=async()=>{
-   
+
       let changeCurrentAudioObj=currentAudioQueue[currentAudioObj.index-1]
       let indexOfQueue=currentAudioObj.index-1;
       if(!changeCurrentAudioObj){
         changeCurrentAudioObj=currentAudioQueue[0]
         indexOfQueue=0
       }
-      console.log("currentAudioQueue[audioIndex+1].uri",changeCurrentAudioObj);
+      console.log("currentAudioQueue[audioIndex+1].uri",indexOfQueue);
+      setActiveAudioId(changeCurrentAudioObj.id)
       setCurrentAudioObj({index:indexOfQueue,uri:changeCurrentAudioObj.uri,filename:changeCurrentAudioObj.filename,audioId:changeCurrentAudioObj.id})
-      //update stirage when previous button press
+      //update storage when previous button press
       useStoreCurrentAudioFile({title:changeCurrentAudioObj.filename,uri:changeCurrentAudioObj.uri,id:changeCurrentAudioObj.id,index:indexOfQueue,activeDuration:0,totalDuration:0})
       if(soundx.current._loaded==true){
         await soundx.current.pauseAsync()

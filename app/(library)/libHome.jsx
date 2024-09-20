@@ -9,16 +9,23 @@ import { useCreatePlaylist, useGetAllPlayLists } from '../../hooks/usePlayList'
 import CustomScreenTitle from '../../components/customScreenTitle'
 import CustomLibraryBtn from '../../components/customLibraryBtn'
 import activeLogo from "../../assets/active.png"
+import { useMusicProvider } from '../../context/musicProvider'
+import RefreshAllAudioFilesBtn from '../../components/refreshAllAudioFiles'
 const Index = () => {
+    let {currentAudioFile,refreshLibraryPage}=useMusicProvider()
     let [isShowModal,setIsShowModal]=useState(false)
     let [allPlayLists,setAllPlaylists]=useState([])
+
     useEffect(()=>{
         useGetAllPlayLists().then((res)=>{
             console.log("AllPlaylists in useeefect",res);
+            if(res){
+                setAllPlaylists([...res])
+            }
             
-            setAllPlaylists([...res])
         })
-    },[])   
+    },[currentAudioFile,refreshLibraryPage])   
+
     let handleModal=()=>{
         setIsShowModal(!isShowModal)
     }
@@ -31,7 +38,7 @@ const Index = () => {
     }
 
   return (
-    <View style={{height:Dimensions.get("window").height,backgroundColor:"black"}}>
+    <View style={{height:Dimensions.get("window").height*.8,backgroundColor:"black"}}>
         <CustomScreenTitle title={"Library"}/>
         <ScrollView>
             <View style={styles.libraryWrapper}>
@@ -42,10 +49,11 @@ const Index = () => {
                 <CustomLibraryBtn btnName={"Favourite Songs"} href={'favourite'} icon={loveRedIcon}/>
                 {allPlayLists.map((sig,index)=>{
                     return(
-                        <CustomLibraryBtn btnName={sig.name} icon={musicLogo} href={sig.id}/>
+                        <CustomLibraryBtn btnName={sig.name} icon={musicLogo} href={`${sig.id}`}/>
                     )
                 })}
               <CustomLibraryBtn btnName={"Current Audio Queue"} icon={activeLogo} href={"queue"}/>
+              <RefreshAllAudioFilesBtn/>
             </View>
             <CreatePlayList modalShow={isShowModal} handleModal={handleModal} handleCreatePlayList={handleCreatePlayList}  ></CreatePlayList>
         </ScrollView>

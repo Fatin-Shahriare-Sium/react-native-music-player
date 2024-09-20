@@ -6,7 +6,7 @@ const _layout = () => {
   return (
     <View style={{height:Dimensions.get("window").height,backgroundColor:"black"}}>
       <Stack screenOptions={{headerShown:false}}>
-
+        <Stack.Screen name='libHome' />
       </Stack>
     </View>
   )

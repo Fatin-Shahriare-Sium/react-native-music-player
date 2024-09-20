@@ -1,9 +1,9 @@
-import { Dimensions, StyleSheet, Text, TextInput, View,Image } from 'react-native'
+import { Dimensions, StyleSheet, Text, TextInput, View,Image, Modal, ScrollView } from 'react-native'
 import React, { useState } from 'react'
 import { useMusicProvider } from '../context/musicProvider'
 import searchIcon from "../assets/search.png"
 import SingleAudioOfPlaylist from './singleAudioOfPlaylist'
-const AddAudioInPlaylist = ({handleAddAudioToPlaylist}) => {
+const AddAudioInPlaylist = ({handleAddAudioToPlaylist,isModalShow,handleModal}) => {
     let {allAudioFiles}=useMusicProvider()
     let [seachedAudio,setSearchedAudio]=useState(allAudioFiles)
     let handleSearchBar=(text)=>{
@@ -15,20 +15,22 @@ const AddAudioInPlaylist = ({handleAddAudioToPlaylist}) => {
         setSearchedAudio([...filteredArray])
     }
   return (
-         <View>
+         <Modal onRequestClose={()=>handleModal()} visible={isModalShow}>
                 <View style={styles.inputBoxWrapper}>
                 <Image  style={styles.searchIconPosition} source={searchIcon}/>
                     <TextInput onChangeText={(e)=>handleSearchBar(e)} placeholderTextColor={"white"} style={styles.inputBoxPlaylist} placeholder='serach'></TextInput>
                     
                 </View>
-                <View>
+               <ScrollView>
+               <View>
                     {seachedAudio.map((sig,index)=>{
                         return(
                             <SingleAudioOfPlaylist key={index} handleAddBtn={handleAddAudioToPlaylist} audioTitle={sig.filename} audioId={sig.id}></SingleAudioOfPlaylist>
                         )
                     })}
                 </View>
-         </View>
+               </ScrollView>
+         </Modal>
   )
 }
 

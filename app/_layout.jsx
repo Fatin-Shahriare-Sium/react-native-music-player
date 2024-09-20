@@ -37,7 +37,7 @@ const _layout = () => {
                   <CustomTabIcon focused={focused} tabName={"Search"} icon={searchIcon}></CustomTabIcon>
                 )
               }}}/>
-              <Tabs.Screen name='(library)' options={{headerShown:false,tabBarIcon:({focused})=>{
+              <Tabs.Screen name='(library)'  options={{headerShown:false,tabBarIcon:({focused})=>{
                    return(
                     <CustomTabIcon focused={focused} tabName={"Library"} icon={libraryIcon}></CustomTabIcon>
                   )

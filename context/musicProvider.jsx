@@ -27,7 +27,6 @@ const storeData = async (value) => {
 let MusicProvider=({children})=> {
     let [allAudioFiles,setAllAudioFiles]=useState([]);
     let [audioQueue,setAudioQueue]=useState([])
-    let [isplaying,setIsPlaying]=useState(false)
     let [willSuffle,setWillSuffle]=useState(false)
     let [isLoopSingle,setIsLoopSingle]=useState(false)
     let [currentAudioFile,setCurrentAudioFile]=useState({title:"",id:"",uri:"",index:"",activeDuration:0,totalDuration:0});
@@ -35,11 +34,12 @@ let MusicProvider=({children})=> {
     let [isPlayOnce,setIsPlayOnce]=useState(true)
     let [isFav,setIsFav]=useState(false)
     let [isPlayingPlaylist,setIsPlayingPlaylist]=useState(false)
-    let [hasNextToPlayInsisted,setHasNextToPlayInsisted]=useState(false)
+    let [refreshLibraryPage,setRefreshLibraryPage]=useState(false)
+    let [activeAudioId,setActiveAudioId]=useState('')
     const soundx =useRef(new Audio.Sound());
-    
+
     let handleAudioSelect=async (audioId,audioUri,audioTitle,index)=>{
-    
+      setActiveAudioId(audioId)
       setIsPlayingPlaylist(false)
       if(isPlayingPlaylist==true){
         setAudioQueue([...allAudioFiles])
@@ -61,7 +61,7 @@ let MusicProvider=({children})=> {
     //handle audio play when user plays from playlist
 
     let handleAudioSelectFromPlaylist=async (playListAudioArray,playListId,audioId,audioUri,audioTitle,index)=>{
-    
+      setActiveAudioId(audioId)
        setIsPlayingPlaylist(true)
    
       if(soundx.current._loaded==true){
@@ -92,30 +92,40 @@ let MusicProvider=({children})=> {
             mediaType:MediaLibrary.MediaType.audio,
             first: media.totalCount,
           })
+          
         await storeData(media.assets);
+        return media.assets;
         // console.log(media.assets)
 
       }
+     
 
       useEffect(()=>{
         AsyncStorage.getItem("AllAudioFiles").then((res)=>{
             if(res){
+              console.log("ALREADY HAVE ALL AUDIO FILES");
+              
               let allAudioFilesParsed=JSON.parse(res)
-            setAllAudioFiles([...allAudioFilesParsed].slice(0,30))
+            setAllAudioFiles([...allAudioFilesParsed])
            
             }else{
-              setAllAudioFiles([])
+              getAudioFiles().then((res)=>{
+                setAllAudioFiles(res)
+              })
+             
             }
         
         })
      
       },[])
       useEffect(()=>{
+        
         AsyncStorage.getItem("currentAudioFile").then((res)=>{
           if(res!==null){
           let currentAudioObjParsed=JSON.parse(res)
           setIsFav(false)
           soundx.current.loadAsync({uri:currentAudioObjParsed.uri},{shouldPlay:false,isLooping:isLoopSingle,positionMillis:currentAudioObjParsed.activeDuration*1000})
+          setActiveAudioId(currentAudioObjParsed.id)
           setCurrentAudioFile(currentAudioObjParsed)
      
           }
@@ -140,7 +150,7 @@ let MusicProvider=({children})=> {
           setIsPlayingPlaylist(false)
           useGetAudioQueue().then((res)=>{
             if(res.length==0){
-              setAudioQueue([...allAudioFiles].slice(0,30))
+              setAudioQueue([...allAudioFiles])
             }else{
               setAudioQueue([...res])
             }
@@ -272,12 +282,19 @@ let MusicProvider=({children})=> {
           ToastAndroid.show("Audio is removed from this playlist",ToastAndroid.SHORT)
        
     }
+  let handleRefreshLibraryPage=()=>{
+    return setRefreshLibraryPage(!refreshLibraryPage)
+  }
+  //refresh all audioes file
 
+  let handleRefreshAllAudiosFiles= ()=>{
+    getAudioFiles().then((res)=>{
+      setAllAudioFiles(res)
+    })
+   
+  }
   return (
-   <GloblaMusicProvider.Provider value={{allAudioFiles,audioQueue,currentAudioFile,handleAudioSelect,handleAudioSelectFromPlaylist,isplaying,willSuffle,handleSuffle,soundx,handleSingleLoop,isLoopingAll,handleLoopAll,handlePlayOnec,handleAddAudioToImmediateNextOfTheAudioQueue,removeAudioFromQueue,handleRemoveAudioFromPlaylsit}} >
-    {/* <Pressable onPress={()=>getAudioFiles()}>
-        <Text>Check</Text>
-    </Pressable> */}
+   <GloblaMusicProvider.Provider value={{allAudioFiles,audioQueue,currentAudioFile,handleAudioSelect,handleAudioSelectFromPlaylist,willSuffle,handleSuffle,soundx,handleSingleLoop,isLoopingAll,handleLoopAll,handlePlayOnec,handleAddAudioToImmediateNextOfTheAudioQueue,removeAudioFromQueue,handleRemoveAudioFromPlaylsit,isPlayingPlaylist,activeAudioId,setActiveAudioId,refreshLibraryPage,handleRefreshLibraryPage,handleRefreshAllAudiosFiles}} >
       {children}
    </GloblaMusicProvider.Provider>
   )

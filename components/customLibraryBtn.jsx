@@ -5,7 +5,7 @@ import { router } from 'expo-router'
 const CustomLibraryBtn = ({icon,href,btnName}) => {
   return (
     <>
-         <TouchableOpacity style={styles.createPlayListBtn} onPress={()=>router.push(`/${href}`)} >
+         <TouchableOpacity style={styles.libraryBtn} onPress={()=>router.push(`/${href}`)} >
                     <Image source={icon}/>
                     <Text style={{color:"white",fontSize:17,fontWeight:"bold",marginLeft:"2%"}}>{btnName}</Text>
         </TouchableOpacity>
@@ -16,7 +16,7 @@ const CustomLibraryBtn = ({icon,href,btnName}) => {
 export default CustomLibraryBtn
 
 const styles = StyleSheet.create({
-    createPlayListBtn:{
+    libraryBtn:{
         display:"flex",
         justifyContent:"flex-start",
         alignItems:"center",

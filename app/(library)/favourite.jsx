@@ -6,6 +6,7 @@ import AudioSingleList from '../../components/audioSingleList'
 import { LinearGradient } from 'expo-linear-gradient'
 import CustomScreenTitle from '../../components/customScreenTitle'
 import favCoverPic from "../../assets/fav-cover.jpg"
+import EmptyComponet from '../../components/emptyComponent'
 const FavouritePage = () => {
     let [allFavAudioArary,setALLFavAudioArray]=useState([])
     let {allAudioFiles,handleAudioSelect}=useMusicProvider()
@@ -13,13 +14,15 @@ const FavouritePage = () => {
         useGetFav().then((res)=>{
             console.log("useGetFav",res);
             let x=[]
-            res.map((sigId)=>{
+            if(res){
+              res.map((sigId)=>{
                 let filterdArray=allAudioFiles.filter((sig)=>sig.id==sigId)
                     x.push(...filterdArray)
                     
                 
             })
             setALLFavAudioArray(x)
+            }
                 
             
         })
@@ -46,6 +49,7 @@ const FavouritePage = () => {
                       key={(item)=>item.id}
                       keyExtractor={(item) => item.id}
                       renderItem={(sig)=>{return (<AudioSingleList key={sig.index} isPlayingFromPlaylist={false} playListId={''} playListAudioQueue={[]} handleRefreshPlaylsit={()=>{}} audioTitle={sig.item.filename} indexOfAudioFiles={sig.index} audioId={sig.item.id} audioUri={sig.item.uri} handleTitleSelect={handleAudioSelect}></AudioSingleList>)}}
+                      ListEmptyComponent={()=><EmptyComponet message={"You have no favourite songs 😥"}/>}
                     />
                   </View>
                 </ScrollView>
