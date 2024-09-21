@@ -1,10 +1,8 @@
-
 import { StyleSheet,View,ScrollView, FlatList,Text, Dimensions } from 'react-native';
 import AudioSingleList from '../components/audioSingleList';
 import { useMusicProvider } from '../context/musicProvider';
 import CustomScreenTitle from '../components/customScreenTitle';
 import { LinearGradient } from 'expo-linear-gradient';
-import EmptyComponet from '../components/emptyComponent';
 import { useEffect, useState } from 'react';
 
 export default function App() {
@@ -17,6 +15,7 @@ export default function App() {
     SetMinimumAudioFiles(extraData)
   }
   useEffect(()=>{
+  
     SetMinimumAudioFiles(allAudioFiles.slice(0,30))
   },[allAudioFiles])
   let sayMAE=()=>{

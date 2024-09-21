@@ -1,4 +1,4 @@
-import {Alert, Pressable,Text, ToastAndroid} from "react-native"
+import {Alert, ToastAndroid} from "react-native"
 import React, { createContext, useContext, useEffect, useRef, useState } from 'react'
 import * as MediaLibrary from "expo-media-library";
 import { Audio } from 'expo-av';
@@ -6,15 +6,13 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import useStoreCurrentAudioFile from "../hooks/useStoreCurrentAudioFile";
 import useUpdateAudioCommand from "../hooks/useUpdateAudioCommand";
 import useGetAudioCommand from "../hooks/useGetAudioCommand";
-import useSetAsFav from "../hooks/useSetAsFav";
-import useDeleteFav from "../hooks/useDeleteFav";
 import useUpdateAudioQueue from "../hooks/useUpdateAudioQueue";
 import useUpdateAllAudioFiles from "../hooks/useUpdateAllAudioFiles";
 import useGetAudioQueue from "../hooks/useGetAudioQueue";
 import { useGetPlayList, useRemoveAudioFromPlaylist, useSetPlayingPlaylistQueue } from "../hooks/usePlayList";
 let GloblaMusicProvider=createContext();
 export let useMusicProvider=()=>useContext(GloblaMusicProvider);
- 
+
 const storeData = async (value) => {
     try {
       const jsonValue = JSON.stringify(value);
@@ -82,6 +80,7 @@ let MusicProvider=({children})=> {
 
 
     let getAudioFiles = async () => {
+      
         await MediaLibrary.requestPermissionsAsync()
         let media = await MediaLibrary.getAssetsAsync({
           mediaType:MediaLibrary.MediaType.audio,
@@ -101,6 +100,7 @@ let MusicProvider=({children})=> {
      
 
       useEffect(()=>{
+        
         AsyncStorage.getItem("AllAudioFiles").then((res)=>{
             if(res){
               console.log("ALREADY HAVE ALL AUDIO FILES");
@@ -180,6 +180,7 @@ let MusicProvider=({children})=> {
       useEffect(()=>{
         Audio.setAudioModeAsync({
             staysActiveInBackground: true,
+        
           });
 
     },[])

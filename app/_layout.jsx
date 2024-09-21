@@ -1,5 +1,5 @@
 import { Dimensions, ScrollView, StyleSheet, Text, View } from 'react-native'
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import MusicProvider from '../context/musicProvider';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Stack, Tabs } from 'expo-router';

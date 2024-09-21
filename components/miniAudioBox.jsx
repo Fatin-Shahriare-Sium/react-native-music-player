@@ -14,6 +14,17 @@ import useStoreCurrentAudioFile from '../hooks/useStoreCurrentAudioFile'
 import useSetAsFav from '../hooks/useSetAsFav'
 import useDeleteFav from '../hooks/useDeleteFav'
 import AsyncStorage from '@react-native-async-storage/async-storage'
+import * as Notifications from 'expo-notifications';
+import { TouchableOpacity } from 'react-native'
+
+Notifications.setNotificationHandler({
+  handleNotification: async () => ({
+    shouldShowAlert: true,
+    shouldPlaySound: false,
+    shouldSetBadge: false,
+  }),
+});
+
 const MiniAudioBox = () => {
   let {currentAudioFile,audioQueue,willSuffle,isLoopSingle,isLoopingAll,handlePlayOnec,handleSuffle,soundx,handleSingleLoop,handleLoopAll,isPlayingPlaylist,setActiveAudioId}=useMusicProvider()
   let audioUri=currentAudioFile.uri
@@ -23,6 +34,7 @@ const MiniAudioBox = () => {
  
     let [audioCurrentStatus,setAudioCurrentStatus]=useState({currentDuration:currentAudioFile.activeDuration,totalDuration:currentAudioFile.totalDuration})
     let intervalRef=useRef(null)
+    let notificationId=useRef(null)
     let [showModal,setShowModal]=useState(false)
     let [currentAudioQueue,setCurrentAudioQueue]=useState([...audioQueue])
     let [currentAudioObj,setCurrentAudioObj]=useState({index:audioIndex,uri:audioUri,filename:audioTitle,audioId:audioId})
@@ -33,9 +45,40 @@ const MiniAudioBox = () => {
      let handleModal=()=>{
       return setShowModal(!showModal)
     }
+    //sending local notifications
+    let sendNoti=async (audioName)=>{
+      const identifier = await Notifications.scheduleNotificationAsync({
+        content: {
+          title: 'Music Playing',
+          body:audioName,     
+        },
+        trigger:null,
+      });
+     console.log("indentifies",identifier);
+    
+     notificationId.current=identifier
+   }
     useEffect(()=>{
+      
       setCurrentAudioObj({index:currentAudioFile.index,uri:currentAudioFile.uri,audioId:currentAudioFile.id,filename:currentAudioFile.title})
     },[currentAudioFile])
+    useEffect(()=>{
+
+      if(notificationId.current){
+        Notifications.dismissNotificationAsync(notificationId.current).then(()=>{
+          if(isplaying==true){
+            sendNoti(currentAudioObj.filename)
+          }
+          
+        })
+      }else{
+        if(isplaying==true){
+          sendNoti(currentAudioObj.filename)
+        }
+      }
+     
+      
+    },[currentAudioObj,isplaying])
     useEffect(()=>{
       // console.log("audio queue in miniAudioBox",audioQueue);
       setCurrentAudioQueue([...audioQueue])
@@ -66,7 +109,10 @@ const MiniAudioBox = () => {
         }
       })
     },[currentAudioFile,isPlayingPlaylist])
-
+  
+    useEffect(()=>{
+      
+    },[])
 
 
  //PLAY next Audio
@@ -231,8 +277,6 @@ const MiniAudioBox = () => {
         <View>
        {audioCurrentStatus.currentDuration>0 &&  <Progress.Bar progress={audioCurrentStatus.currentDuration/audioCurrentStatus.totalDuration}  color={"black"} unfilledColor={"white"} width={Dimensions.get("window").width} height={1} />}
         </View>
-       
-
         <View style={styles.miniAudioBoxContentWrapper}>
             <View style={styles.miniAudioImgWrapper}>
                 <Image  source={musicLogo}/>

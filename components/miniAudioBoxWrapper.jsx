@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View } from 'react-native'
+import { Dimensions, StyleSheet, Text, View } from 'react-native'
 import React from 'react'
 import MiniAudioBox from './miniAudioBox';
 import { useMusicProvider } from '../context/musicProvider';
@@ -6,7 +6,7 @@ import { useMusicProvider } from '../context/musicProvider';
 const MiniAudioBoxWrapper = () => {
     let {currentAudioFile}=useMusicProvider()
   return (
-    <View style={styles.miniAudioBoxWrapper}>
+    <View style={{height:!currentAudioFile.uri&&Dimensions.get("window").height*.1,backgroundColor:"black"}}>
        {currentAudioFile.uri && <MiniAudioBox></MiniAudioBox>}
     </View>
   )
@@ -15,7 +15,5 @@ const MiniAudioBoxWrapper = () => {
 export default MiniAudioBoxWrapper;
 
 const styles = StyleSheet.create({
-    miniAudioBoxWrapper:{
-    zIndex:7,
-    }
+  
 })
