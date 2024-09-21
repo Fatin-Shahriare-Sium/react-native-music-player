@@ -39,11 +39,11 @@ export default function App() {
           <LinearGradient
           // Background Linear Gradient
           colors={['#35555f',"black"]}
-          start={{x: .3, y: 0}} end={{x: 1, y: 0}} 
+          start={{x: .2, y: 0}} end={{x: 1, y: 0}} 
           >
               <View style={styles.container}>
                     <View style={{display:"flex",justifyContent:"center",alignItems:"center",height:Dimensions.get("window").height*.2}}>
-                      <Text style={{color:"white",fontWeight:"700",fontSize:50,textAlign:"center"}}>{sayMAE()}</Text>
+                      <Text style={{color:"white",fontWeight:"700",fontSize:40,textAlign:"center"}}>{sayMAE()}</Text>
                     </View>
                 
               </View>

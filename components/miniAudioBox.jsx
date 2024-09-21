@@ -275,7 +275,7 @@ const MiniAudioBox = () => {
     <View style={{backgroundColor:"#222221",height:Dimensions.get("window").height*.1,width:Dimensions.get("window").width}}>
  <AudioPlayer  isFav={isFav} setAudioAsFav={setAudioAsFav} deleteAudioAsFav={deleteAudioAsFav} playOnceFunc={handlePlayOnec} suffleFunc={handleSuffle} loopAllFunc={handleLoopAll} singleLoopFunc={handleSingleLoop} playPreFuc={playPrevious} handleSeek={syncWithAudio} modalFuc={handleModal} isModalShow={showModal} playFuc={playSound} pauseFuc={pauseSound} audioUpdateStatus={audioCurrentStatus} playNextFunc={playNext} isPlaying={isplaying} audioTitle={currentAudioObj.filename}></AudioPlayer>
         <View>
-       {audioCurrentStatus.currentDuration>0 &&  <Progress.Bar progress={audioCurrentStatus.currentDuration/audioCurrentStatus.totalDuration}  color={"black"} unfilledColor={"white"} width={Dimensions.get("window").width} height={1} />}
+       {audioCurrentStatus.currentDuration>0 &&  <Progress.Bar progress={audioCurrentStatus.currentDuration/audioCurrentStatus.totalDuration} borderWidth={0} borderColor='black'  color={"white"} unfilledColor={"#515050"} width={Dimensions.get("window").width} height={1} />}
         </View>
         <View style={styles.miniAudioBoxContentWrapper}>
             <View style={styles.miniAudioImgWrapper}>

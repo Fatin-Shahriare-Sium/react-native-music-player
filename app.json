@@ -1,12 +1,12 @@
 {
   "expo": {
-    "name": "music_player",
-    "slug": "music_player",
+    "name": "Siumify",
+    "slug": "Siumify",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
-    "scheme": "music_player",
+    "scheme": "Siumify",
     "splash": {
       "image": "./assets/splash.png",
       "resizeMode": "contain",
@@ -32,7 +32,7 @@
         "expo-notifications",
         {
           "icon": "./assets/music.png",
-          "color": "#ffffff"
+          "color": "#000000"
         }
       ]
     ]

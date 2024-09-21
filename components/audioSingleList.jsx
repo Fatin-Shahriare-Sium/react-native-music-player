@@ -19,10 +19,10 @@ const AudioSingleList = ({audioTitle,audioUri,audioId,handleTitleSelect,indexOfA
   let [isFav,setIsFav]=useState(false)
   let [isActive,setIsActive]=useState(false)
   const refRBSheet = useRef();
-  useEffect(()=>{
-console.log("indexOfAudioFiles",indexOfAudioFiles);
+//   useEffect(()=>{
+// console.log("indexOfAudioFiles",indexOfAudioFiles);
   
-  },[indexOfAudioFiles])
+//   },[indexOfAudioFiles])
 
   useEffect(()=>{
     setIsActive(false)
@@ -35,7 +35,7 @@ console.log("indexOfAudioFiles",indexOfAudioFiles);
       // checking if this song is favourite or note
       useEffect(()=>{
         AsyncStorage.getItem("favArray").then((res)=>{
-          console.log("Fav Array in useffect to get all audio id",JSON.parse(res));
+          //console.log("Fav Array in useffect to get all audio id",JSON.parse(res));
           if(res){
             let paredArray=JSON.parse(res)
           paredArray.map((sig)=>{
