@@ -1,11 +1,10 @@
-import { StyleSheet, Text, View,ScrollView ,Image,TextInput,FlatList, Dimensions } from 'react-native'
-import React, { useEffect, useRef, useState } from 'react'
+import { StyleSheet, View,ScrollView ,Image,TextInput,FlatList, Dimensions } from 'react-native'
+import React, { useState } from 'react'
 import searchIcon from "../assets/search.png"
 import { useMusicProvider } from '../context/musicProvider'
 import AudioSingleList from '../components/audioSingleList'
 import CustomScreenTitle from '../components/customScreenTitle'
 import EmptyComponet from '../components/emptyComponent'
-
 const Serach = () => {
 
   let {allAudioFiles,handleAudioSelect}=useMusicProvider()

@@ -4,7 +4,6 @@ import useGetFav from '../../hooks/useGetFav'
 import { useMusicProvider } from '../../context/musicProvider'
 import AudioSingleList from '../../components/audioSingleList'
 import { LinearGradient } from 'expo-linear-gradient'
-import CustomScreenTitle from '../../components/customScreenTitle'
 import favCoverPic from "../../assets/fav-cover.jpg"
 import EmptyComponet from '../../components/emptyComponent'
 const FavouritePage = () => {

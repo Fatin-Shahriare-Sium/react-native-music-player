@@ -6,11 +6,11 @@
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
-    "scheme": "Siumify",
+    "scheme": "siumify",
     "splash": {
       "image": "./assets/splash.png",
-      "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
+      "resizeMode": "cover",
+      "backgroundColor": "#000000"
     },
     "ios": {
       "supportsTablet": true
@@ -20,7 +20,7 @@
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "package": "com.fatinshahriaresium.music_player"
+      "package": "com.fatinshahriaresium.siumify"
     },
     "web": {
       "favicon": "./assets/favicon.png",
@@ -35,6 +35,14 @@
           "color": "#000000"
         }
       ]
-    ]
+    ],
+    "extra": {
+      "router": {
+        "origin": false
+      },
+      "eas": {
+        "projectId": "446f2c69-d10b-4053-bfe3-111956563ec8"
+      }
+    }
   }
 }

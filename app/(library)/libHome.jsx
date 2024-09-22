@@ -3,7 +3,6 @@ import React, { useEffect, useState } from 'react'
 import addPlayListIcon from "../../assets/add-playlist.png"
 import musicLogo from "../../assets/music.png"
 import loveRedIcon from "../../assets/love-red.png"
-import { router } from 'expo-router'
 import CreatePlayList from '../../components/createPlaylist'
 import { useCreatePlaylist, useGetAllPlayLists } from '../../hooks/usePlayList'
 import CustomScreenTitle from '../../components/customScreenTitle'

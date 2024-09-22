@@ -1,4 +1,4 @@
-import { StyleSheet,View,ScrollView, FlatList,Text, Dimensions } from 'react-native';
+import { StyleSheet,View, FlatList,Text, Dimensions } from 'react-native';
 import AudioSingleList from '../components/audioSingleList';
 import { useMusicProvider } from '../context/musicProvider';
 import CustomScreenTitle from '../components/customScreenTitle';
