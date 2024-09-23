@@ -44,7 +44,7 @@ const AudioSingleList = ({audioTitle,audioUri,audioId,handleTitleSelect,indexOfA
     }
   },[times])
   useEffect(()=>{
-     
+     setTimes(0);
     if(isActive==true){
       intervalRef.current=setInterval(()=>{
         soundx.current.getStatusAsync().then((res)=>{
