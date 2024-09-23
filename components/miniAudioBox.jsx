@@ -26,7 +26,7 @@ Notifications.setNotificationHandler({
 });
 
 const MiniAudioBox = () => {
-  let {currentAudioFile,audioQueue,willSuffle,isLoopSingle,isLoopingAll,handlePlayOnec,handleSuffle,soundx,handleSingleLoop,handleLoopAll,isPlayingPlaylist,setActiveAudioId}=useMusicProvider()
+  let {currentAudioFile,audioQueue,willSuffle,isLoopSingle,isLoopingAll,handlePlayOnec,handleSuffle,soundx,handleSingleLoop,handleLoopAll,isPlayingPlaylist,setActiveAudioId,isPlayingActiveAudioId,setIsPlayingActiveAudioId}=useMusicProvider()
   let audioUri=currentAudioFile.uri
   let audioTitle=currentAudioFile.title
   let audioId=currentAudioFile.id
@@ -109,10 +109,7 @@ const MiniAudioBox = () => {
         }
       })
     },[currentAudioFile,isPlayingPlaylist])
-  
-    useEffect(()=>{
-      
-    },[])
+
 
 
  //PLAY next Audio

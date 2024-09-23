@@ -103,7 +103,7 @@ let MusicProvider=({children})=> {
         
         AsyncStorage.getItem("AllAudioFiles").then((res)=>{
             if(res){
-              console.log("ALREADY HAVE ALL AUDIO FILES");
+       
               
               let allAudioFilesParsed=JSON.parse(res)
             setAllAudioFiles([...allAudioFilesParsed])

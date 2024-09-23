@@ -14,10 +14,14 @@ import { router } from 'expo-router'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import useDeleteFav from '../hooks/useDeleteFav'
 import useSetAsFav from '../hooks/useSetAsFav'
+import LottieView from 'lottie-react-native';
 const AudioSingleList = ({audioTitle,audioUri,audioId,handleTitleSelect,indexOfAudioFiles,isPlayingFromPlaylist,playListAudioQueue,playListId,handleRefreshPlaylsit}) => {
-  let {handleAddAudioToImmediateNextOfTheAudioQueue,removeAudioFromQueue,handleRemoveAudioFromPlaylsit,activeAudioId}=useMusicProvider()
+  let {handleAddAudioToImmediateNextOfTheAudioQueue,removeAudioFromQueue,handleRemoveAudioFromPlaylsit,activeAudioId,soundx}=useMusicProvider()
   let [isFav,setIsFav]=useState(false)
   let [isActive,setIsActive]=useState(false)
+  let [times,setTimes]=useState(0)
+  const animation = useRef(null);
+  let intervalRef=useRef(null)
   const refRBSheet = useRef();
 //   useEffect(()=>{
 // console.log("indexOfAudioFiles",indexOfAudioFiles);
@@ -26,11 +30,36 @@ const AudioSingleList = ({audioTitle,audioUri,audioId,handleTitleSelect,indexOfA
 
   useEffect(()=>{
     setIsActive(false)
+    
     if(activeAudioId==audioId){
+      
       return setIsActive(true)
     }
   },[activeAudioId])
-
+  useEffect(()=>{
+    if(times==1){
+      animation.current.play()
+    }else{
+      animation.current.pause()
+    }
+  },[times])
+  useEffect(()=>{
+     
+    if(isActive==true){
+      intervalRef.current=setInterval(()=>{
+        soundx.current.getStatusAsync().then((res)=>{
+          if(res.isPlaying==false){
+            setTimes(0)
+          }else{
+            setTimes(1+times)
+          }
+        
+  
+        })
+      },200 )
+    }
+      return ()=>{clearInterval(intervalRef.current)}
+    },[isActive])
 
       // checking if this song is favourite or note
       useEffect(()=>{
@@ -69,6 +98,21 @@ const AudioSingleList = ({audioTitle,audioUri,audioId,handleTitleSelect,indexOfA
                <Pressable onPress={()=>isPlayingFromPlaylist==true?handleTitleSelect(playListAudioQueue,playListId,audioId,audioUri,audioTitle,indexOfAudioFiles):handleTitleSelect(audioId,audioUri,audioTitle,indexOfAudioFiles)}>
                <Text  numberOfLines={1} style={{color:isActive?"#08a9ee":"white",fontWeight:isActive?"900":"black"}}>{audioTitle}</Text>
                </Pressable>
+               <LottieView
+                  autoPlay={false}
+                  ref={animation}
+                  loop={true}
+                
+                  style={{
+                   width:30,
+                   height:30,
+                   marginLeft:-5,
+                   display:isActive?"flex":"none",
+                    backgroundColor: '#000000',
+                  }}
+                  // Find more Lottie files at https://lottiefiles.com/featured
+                  source={require('../assets/wave.json')}
+                />
             </View>
             <View style={{marginLeft:"3%"}}>
                 <TouchableOpacity onPress={()=>refRBSheet.current.open()}>
