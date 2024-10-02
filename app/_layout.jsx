@@ -1,4 +1,4 @@
-import { Dimensions, StyleSheet, View } from "react-native";
+import { Dimensions, StyleSheet, View, StatusBar } from "react-native";
 import React from "react";
 import MusicProvider from "../context/musicProvider";
 import { SafeAreaView } from "react-native-safe-area-context";
