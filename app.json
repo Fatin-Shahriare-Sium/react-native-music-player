@@ -5,7 +5,7 @@
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
-    "userInterfaceStyle": "light",
+    "userInterfaceStyle": "dark",
     "scheme": "siumify",
     "splash": {
       "image": "./assets/splash.png",
@@ -13,9 +13,11 @@
       "backgroundColor": "#000000"
     },
     "ios": {
+      "userInterfaceStyle": "dark",
       "supportsTablet": true
     },
     "android": {
+      "userInterfaceStyle": "dark",
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
